@@ -55,7 +55,7 @@ function LyricLoungeContainer() {
 
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
-
+  
   // Fetch artist info and music videos when artist changes
   useEffect(() => {
     // PUBLIC_INTERFACE
@@ -153,6 +153,56 @@ function LyricLoungeContainer() {
     fetchData();
     // eslint-disable-next-line
   }, [selectedArtistId]);
+
+
+  // Fetch albums for the selected artist when artist changes
+  useEffect(() => {
+    // Only run when selectedArtistId or artist changes
+    async function fetchAlbums() {
+      setAlbums([]);
+      setAlbumsLoading(true);
+      setAlbumError("");
+      let artistName = null;
+      // We need artist name for the API. Use the loaded artist if available, else fallback to static.
+      if (artist && artist.strArtist && artist.strArtist.trim().length > 0) {
+        artistName = artist.strArtist;
+      } else {
+        // Fallback: find from static artist info
+        const found = ARTISTS.find((ar) => ar.id === selectedArtistId);
+        if (found && found.name) artistName = found.name;
+      }
+      if (!artistName) {
+        setAlbums([]);
+        setAlbumsLoading(false);
+        setAlbumError("Unknown artist for album lookup.");
+        return;
+      }
+      try {
+        const resp = await fetch(
+          `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/searchalbum.php?s=${encodeURIComponent(artistName)}`
+        );
+        if (!resp.ok) throw new Error("Failed to fetch albums API");
+        const data = await resp.json();
+        if (data && Array.isArray(data.album)) {
+          setAlbums(data.album);
+        } else {
+          setAlbums([]);
+          setAlbumError("No albums found for this artist.");
+        }
+      } catch (e) {
+        setAlbums([]);
+        setAlbumError(
+          "Sorry, failed to load albums. [Network/API error]"
+        );
+        // eslint-disable-next-line no-console
+        console.error("Album fetch error", e);
+      }
+      setAlbumsLoading(false);
+    }
+    // Only trigger if artist mem changes (for correct race-avoid on async)
+    fetchAlbums();
+    // eslint-disable-next-line
+  }, [selectedArtistId, artist]);
 
   // Fetch full track details whenever the selected video/track changes
   useEffect(() => {
