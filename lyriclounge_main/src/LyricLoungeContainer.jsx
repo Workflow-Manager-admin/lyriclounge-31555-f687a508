@@ -776,7 +776,18 @@ function LyricLoungeContainer() {
                 display: "flex",
                 alignItems: "flex-start",
                 maxWidth: 540,
-                boxShadow: "0 2px 10px #ea41c326"
+                boxShadow: "0 2px 10px #ea41c326",
+                cursor: "pointer",
+                outline: "none"
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`View details for album ${albumSearchResult.strAlbum}`}
+              onClick={() => albumSearchResult.idAlbum && setSelectedAlbumId(albumSearchResult.idAlbum)}
+              onKeyPress={e => {
+                if (e.key === "Enter" && albumSearchResult.idAlbum) {
+                  setSelectedAlbumId(albumSearchResult.idAlbum);
+                }
               }}
             >
               <img
@@ -830,6 +841,9 @@ function LyricLoungeContainer() {
                       style={{ height: 36, background: "#f0adea08", borderRadius: 8 }}
                     />
                   </div>}
+                <div style={{marginTop: 7, color: "#ea41c3", fontWeight: 600, fontSize: "0.99em"}}>
+                  Click/tap for details
+                </div>
               </div>
             </div>
           )}
@@ -855,7 +869,7 @@ function LyricLoungeContainer() {
                     ? album.strAlbumThumb
                     : "https://www.theaudiodb.com/images/media/album/thumb/default.png";
                 return (
-                  <div
+                  <button
                     key={album.idAlbum || album.strAlbum}
                     style={{
                       background: "#fff",
@@ -867,8 +881,14 @@ function LyricLoungeContainer() {
                       minHeight: 190,
                       display: "flex",
                       flexDirection: "column",
-                      alignItems: "center"
+                      alignItems: "center",
+                      cursor: album.idAlbum ? "pointer" : "default",
+                      outline: "none",
+                      position: "relative"
                     }}
+                    aria-label={album.idAlbum ? `View details for album ${album.strAlbum}` : undefined}
+                    disabled={!album.idAlbum}
+                    onClick={() => album.idAlbum && setSelectedAlbumId(album.idAlbum)}
                   >
                     <img
                       src={img}
@@ -901,10 +921,120 @@ function LyricLoungeContainer() {
                           {album.intYearReleased}
                         </div>
                       )}
+                      {album.idAlbum && (
+                        <div style={{marginTop: 8, color: "#ea41c3", fontWeight: 600, fontSize: ".94em" }}>
+                          Details
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
+            </div>
+          )}
+
+          {/* Album Details Section */}
+          {selectedAlbumId && (
+            <div
+              style={{
+                margin: "18px auto 0 auto",
+                maxWidth: 680,
+                background: "#fff",
+                border: "2.3px solid #ea41c3",
+                borderRadius: 18,
+                boxShadow: "0 3px 14px #ea41c325",
+                padding: 0,
+                display: "flex",
+                alignItems: "flex-start",
+                position: "relative",
+                minHeight: 160,
+              }}
+            >
+              {albumDetailsLoading ? (
+                <div style={{
+                  padding: "46px 0", textAlign: "center", width: "100%", color: "#ea41c3"
+                }}>
+                  Loading album details...
+                </div>
+              ) : albumDetailsError ? (
+                <div style={{ color: "#fa3a62", padding: 20 }}>{albumDetailsError}</div>
+              ) : albumDetails ? (
+                <>
+                  <img
+                    src={
+                      albumDetails.strAlbumThumb && albumDetails.strAlbumThumb.trim().length > 0
+                        ? albumDetails.strAlbumThumb
+                        : "https://www.theaudiodb.com/images/media/album/thumb/default.png"
+                    }
+                    alt={albumDetails.strAlbum}
+                    style={{
+                      width: 132, height: 132, objectFit: "cover",
+                      borderRadius: 15, margin: 18, boxShadow: "0 2px 8px #ea41c312"
+                    }}
+                  />
+                  <div style={{ padding: "13px 0 17px 0", flex: 1 }}>
+                    <div style={{
+                      fontWeight: 800,
+                      fontSize: "1.34em",
+                      color: "#ea41c3",
+                      marginBottom: 4,
+                    }}>
+                      {albumDetails.strAlbum}
+                    </div>
+                    <div style={{
+                      fontWeight: 600,
+                      color: "#6c2577",
+                      fontSize: "1em",
+                      marginBottom: 4,
+                    }}>
+                      {(albumDetails.strGenre ? `Genre: ${albumDetails.strGenre}  •  ` : "")}
+                      {albumDetails.intYearReleased ? `Released: ${albumDetails.intYearReleased}` : ""}
+                    </div>
+                    <div style={{
+                      color: "#a957bb",
+                      fontWeight: 600,
+                      marginBottom: 8,
+                      fontSize: ".98em",
+                    }}>
+                      {albumDetails.strLabel ? `Label: ${albumDetails.strLabel}` : ""}
+                      {albumDetails.strReleaseFormat ? ` (${albumDetails.strReleaseFormat})` : ""}
+                      {albumDetails.strCatalogID ? ` [#${albumDetails.strCatalogID}]` : ""}
+                    </div>
+                    {albumDetails.strDescriptionEN && (
+                      <div style={{
+                        color: "#3c2241", fontSize: ".98em",
+                        marginTop: 7,
+                        maxHeight: 92, overflow: "auto",
+                        background: "#f0adea12",
+                        padding: "9px 12px 7px 12px",
+                        borderRadius: 8,
+                      }}>
+                        {albumDetails.strDescriptionEN}
+                      </div>
+                    )}
+                    <div style={{marginTop: 8}}>
+                      <button
+                        className="btn"
+                        style={{
+                          background: "#ea41c3",
+                          color: "#fff",
+                          borderRadius: 9,
+                          padding: "7px 18px",
+                          fontWeight: 700,
+                          fontSize: ".98em",
+                          border: "none",
+                          outline: "none",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setSelectedAlbumId(null)}
+                        aria-label="Close album details"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
         </section>
