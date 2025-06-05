@@ -855,7 +855,7 @@ function LyricLoungeContainer() {
           ) : albums.length === 0 ? (
             <div style={{ color: "#100e0e99" }}>No albums found.</div>
           ) : (
-            // Filter out unwanted album titles only for Daft Punk; show all for other artists
+            {/* Filter out unwanted album titles only for Daft Punk; show all for other artists */}
             <div
               style={{
                 display: "grid",
@@ -866,10 +866,15 @@ function LyricLoungeContainer() {
               {albums
                 .filter(album => {
                   if (!album.strAlbum) return true;
-                  // Find Daft Punk artist ID for filter check:
+                  // Only apply exclusion for Daft Punk (by artist name or artist ID)
                   const DAFT_PUNK_ID = "112024";
-                  // Only apply the exclusion if current artist is Daft Punk
-                  if (selectedArtistId === DAFT_PUNK_ID) {
+                  const DAFT_PUNK_NAMES = ["Daft Punk"];
+                  // Try to get live or fallback artist name
+                  let artistName = artist?.strArtist || ARTISTS.find(a => a.id === selectedArtistId)?.name || "";
+                  if (
+                    (selectedArtistId === DAFT_PUNK_ID) ||
+                    DAFT_PUNK_NAMES.includes(artistName)
+                  ) {
                     // List of Daft Punk albums to exclude (case-insensitive)
                     const excludedTitles = [
                       "homework",
