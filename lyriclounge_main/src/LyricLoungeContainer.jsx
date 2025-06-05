@@ -58,32 +58,40 @@ function LyricLoungeContainer() {
           throw new Error(`Music video fetch failed: HTTP ${mvResp.status}`);
         }
         const mvJson = await mvResp.json();
-        // --- BEGIN PATCH: robustly detect keys and enhance debugging ---
+
+        // Defensive: API may have property "mvid" (array), not "mvids"
         let vidsKey = "mvids";
         let arrayVal = mvJson?.[vidsKey];
         if (!arrayVal && "mvid" in mvJson) {
           vidsKey = "mvid";
           arrayVal = mvJson.mvid;
         }
+
         let rawMvs = Array.isArray(arrayVal) ? arrayVal : [];
-        // Extra: surface detail if the array is empty but there was a structural mismatch
-        if ((arrayVal && !Array.isArray(arrayVal)) || (!arrayVal && Object.keys(mvJson || {}).length > 0)) {
+
+        // Error/debug reporting: Clearly indicate if API shape is unexpected or empty
+        if (!arrayVal && (!mvJson || typeof mvJson !== "object" || Object.keys(mvJson).length === 0)) {
+          // Entire response is empty/null/blank object: likely API/endpoint problem
+          loadError += (loadError ? " " : "") + "No music video data found for this artist (empty API response).";
           // eslint-disable-next-line no-console
-          console.error(
-            "LyricLounge DEBUG: Unexpected music video API structure for key:",
-            vidsKey,
-            mvJson
-          );
-        }
-        if (!rawMvs.length) {
-          // Also log total response for diagnosis in case of null/empty data
+          console.error("LyricLounge DEBUG: Music video API returned empty or invalid response:", mvJson);
+        } else if (!rawMvs.length) {
+          // Array is empty but there is a structured response object
+          if (Object.keys(mvJson || {}).length > 0) {
+            loadError += (loadError ? " " : "") +
+              "No music videos found in the database for this artist.";
+            // eslint-disable-next-line no-console
+            console.error("LyricLounge DEBUG: No music videos array found for key", vidsKey, "Full music video API response:", mvJson);
+          }
+        } else if ((arrayVal && !Array.isArray(arrayVal))) {
+          loadError += (loadError ? " " : "") +
+            "Unexpected music video API response structure.";
           // eslint-disable-next-line no-console
-          console.error("LyricLounge DEBUG: No music videos found for artist id", ARTIST_ID, "Raw response:", mvJson);
+          console.error("LyricLounge DEBUG: Music video data is present but not an array. Raw response:", mvJson);
         }
         musicVideosData = rawMvs;
-        // --- END PATCH ---
       } catch (err) {
-        loadError += (loadError ? " " : "") + "Sorry, failed to load music videos.";
+        loadError += (loadError ? " " : "") + "Sorry, failed to load music videos. [Network/API error]";
         // eslint-disable-next-line no-console
         console.error("Music video fetch error", err);
       }
