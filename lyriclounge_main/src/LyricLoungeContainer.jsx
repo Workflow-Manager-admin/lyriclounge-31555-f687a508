@@ -44,9 +44,9 @@ function LyricLoungeContainer() {
       img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
     },
     {
-      id: "112024", // Daft Punk
-      name: "Daft Punk",
-      img: "https://www.theaudiodb.com/images/media/artist/thumb/uxwuqw1486114912.jpg"
+      id: "121335", // The Weeknd
+      name: "The Weeknd",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/uxxyuv1429914500.jpg"
     },
     {
       id: "135088", // Adele
