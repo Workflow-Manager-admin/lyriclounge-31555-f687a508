@@ -270,11 +270,6 @@ function LyricLoungeContainer() {
           >
             Choose an Artist
           </div>
-          {/* Fallback error image tracking for artist grid */}
-          {/*
-            We need to track loading failures at the component level:
-            imgErrorState: { [artistId]: true/false }
-          */}
           <div
             style={{
               display: "flex",
@@ -283,9 +278,115 @@ function LyricLoungeContainer() {
               marginBottom: 5
             }}
           >
-            {/* useState for grid image fallback */}
-            {/* Place this up above component return, but for linear edit: */}
-            {/* const [artistGridImgError, setArtistGridImgError] = useState({}); */}
+            {ARTISTS.map((ar) => {
+              // Determine which image to show for each artist "card" in the grid.
+              // Use live API thumb for the currently selected artist if it is available
+              // Otherwise use the static image, or fallback to generic
+              const baseFallback = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+              let thumb;
+              if (
+                artist &&
+                ar.id === selectedArtistId &&
+                artist.strArtistThumb &&
+                artist.strArtistThumb.trim().length > 0
+              ) {
+                thumb = artist.strArtistThumb.trim();
+              } else if (ar.img && ar.img.trim().length > 0) {
+                thumb = ar.img.trim();
+              } else {
+                thumb = baseFallback;
+              }
+
+              // Use error override if state for this artist is set
+              const errorKey = ar.id;
+              const finalThumb = artistGridImgError[errorKey] ? baseFallback : thumb;
+              // Handler to set fallback image (avoiding infinite loop)
+              const handleImgError = (e) => {
+                if (
+                  e.target &&
+                  e.target.src !== baseFallback &&
+                  !artistGridImgError[errorKey] // avoid set loop
+                ) {
+                  // eslint-disable-next-line no-console
+                  console.warn(
+                    `Artist grid image failed to load for '${ar.name}': `,
+                    e.target.src
+                  );
+                  setArtistGridImgError((prev) => ({
+                    ...prev,
+                    [errorKey]: true
+                  }));
+                  // fallback immediately for user
+                  e.target.src = baseFallback;
+                }
+              };
+
+              return (
+                <button
+                  key={ar.id}
+                  onClick={() => setSelectedArtistId(ar.id)}
+                  style={{
+                    background:
+                      selectedArtistId === ar.id
+                        ? "linear-gradient(110deg,#fff7fa,#ffc3ee 95%)"
+                        : "#fff",
+                    border:
+                      selectedArtistId === ar.id
+                        ? "2.6px solid #f0adea"
+                        : "2px solid #ded3d6",
+                    borderRadius: 16,
+                    padding: 0,
+                    cursor: "pointer",
+                    outline: "none",
+                    boxShadow:
+                      selectedArtistId === ar.id
+                        ? "0 4px 18px 0 #f0adea14"
+                        : "0 2px 10px #100e0e06",
+                    overflow: "hidden",
+                    minWidth: 140,
+                    maxWidth: 175,
+                    width: 155,
+                    marginBottom: 0,
+                    transition:
+                      "border 0.15s, box-shadow 0.18s, background 0.15s"
+                  }}
+                  aria-label={`Select artist ${ar.name}`}
+                >
+                  <img
+                    src={finalThumb}
+                    alt={ar.name}
+                    style={{
+                      width: "100%",
+                      height: 62,
+                      objectFit: "cover",
+                      borderTopLeftRadius: 16,
+                      borderTopRightRadius: 16,
+                      background: "#f0adea13"
+                    }}
+                    onError={handleImgError}
+                  />
+                  <div
+                    style={{
+                      padding: "9px 14px 12px 13px",
+                      textAlign: "center"
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color:
+                          selectedArtistId === ar.id
+                            ? "#e86ac8"
+                            : "#100e0e",
+                        fontSize: "1.04em"
+                      }}
+                    >
+                      {ar.name}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
 
