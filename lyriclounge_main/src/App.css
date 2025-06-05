@@ -1,9 +1,28 @@
 :root {
+  /* For template compatibility, but LyricLounge uses its own theme below */
   --base-light: #00ffff;
   --base-dark: #00008b;
   --text-color: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* LyricLounge Color Theme */
+.ll-main {
+  /* Set in JSX inline, for full control */
+}
+.ll-container {
+  width: 100%;
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 0 18px;
+  box-sizing: border-box;
+}
+.ll-logo {
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 body {
