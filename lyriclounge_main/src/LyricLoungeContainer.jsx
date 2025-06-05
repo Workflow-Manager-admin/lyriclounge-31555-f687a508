@@ -44,7 +44,7 @@ function LyricLoungeContainer() {
       img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
     },
     {
-      id: "121335", // The Weeknd (force correct ID and remove any potential whitespace or casing issues)
+      id: "121335", // The Weeknd (enforce correct ID exactly)
       name: "The Weeknd",
       img: "https://www.theaudiodb.com/images/media/artist/thumb/uxxyuv1429914500.jpg"
     },
@@ -87,6 +87,8 @@ function LyricLoungeContainer() {
 
   // Utility for normalized artist id
   const normalizeArtistId = (v) => String(v).trim();
+
+  // --- Ensure all artist API fetches, comparisons and UI bindings use selectedArtistId (strict id) ONLY. No backup IDs allowed. ---
 
   // Fetch album info for Daft Punk's "Homework" when that artist is selected.
   useEffect(() => {
