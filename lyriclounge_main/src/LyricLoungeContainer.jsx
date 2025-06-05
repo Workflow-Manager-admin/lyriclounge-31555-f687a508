@@ -232,27 +232,125 @@ function LyricLoungeContainer() {
       </nav>
 
       <main>
+        {/* Artist Selection Grid */}
+        <section
+          style={{
+            margin: "0 auto",
+            maxWidth: 900,
+            padding: "30px 20px 20px 20px",
+            marginTop: 22
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: "1.16rem",
+              color: "#f0adea",
+              marginBottom: 13,
+              letterSpacing: 0,
+              textTransform: "uppercase"
+            }}
+          >
+            Choose an Artist
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 18,
+              marginBottom: 5
+            }}
+          >
+            {ARTISTS.map((ar) => (
+              <button
+                key={ar.id}
+                onClick={() => setSelectedArtistId(ar.id)}
+                style={{
+                  background:
+                    selectedArtistId === ar.id
+                      ? "linear-gradient(110deg,#fff7fa,#ffc3ee 95%)"
+                      : "#fff",
+                  border:
+                    selectedArtistId === ar.id
+                      ? "2.6px solid #f0adea"
+                      : "2px solid #ded3d6",
+                  borderRadius: 16,
+                  padding: 0,
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow:
+                    selectedArtistId === ar.id
+                      ? "0 4px 18px 0 #f0adea14"
+                      : "0 2px 10px #100e0e06",
+                  overflow: "hidden",
+                  minWidth: 140,
+                  maxWidth: 175,
+                  width: 155,
+                  marginBottom: 0,
+                  transition:
+                    "border 0.15s, box-shadow 0.18s, background 0.15s"
+                }}
+                aria-label={`Select artist ${ar.name}`}
+              >
+                <img
+                  src={ar.img}
+                  alt={ar.name}
+                  style={{
+                    width: "100%",
+                    height: 62,
+                    objectFit: "cover",
+                    borderTopLeftRadius: 16,
+                    borderTopRightRadius: 16,
+                    background: "#f0adea13"
+                  }}
+                />
+                <div
+                  style={{
+                    padding: "9px 14px 12px 13px",
+                    textAlign: "center"
+                  }}
+                >
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      color:
+                        selectedArtistId === ar.id
+                          ? "#e86ac8"
+                          : "#100e0e",
+                      fontSize: "1.04em"
+                    }}
+                  >
+                    {ar.name}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* Artist Info */}
         <section
           style={{
             margin: "0 auto",
             maxWidth: 900,
-            padding: "36px 20px 16px 20px",
+            padding: "32px 20px 14px 20px",
             display: "flex",
             gap: 32,
             flexWrap: "wrap",
             borderRadius: "20px",
             background: "#f0adea05",
-            alignItems: "flex-start",
-            marginTop: 22
-          }}>
+            alignItems: "flex-start"
+          }}
+        >
           {loading ? (
-            <div style={{
-              color: "#f0adea",
-              fontSize: "1.2rem",
-              width: "100%",
-              textAlign: "center"
-            }}>
+            <div
+              style={{
+                color: "#f0adea",
+                fontSize: "1.2rem",
+                width: "100%",
+                textAlign: "center"
+              }}
+            >
               Loading artist information...
             </div>
           ) : !artist ? (
@@ -262,7 +360,7 @@ function LyricLoungeContainer() {
           ) : (
             <>
               <img
-                src={ARTIST_IMAGE_URL}
+                src={currentArtistPic}
                 alt={artist?.strArtist || "Artist"}
                 style={{
                   borderRadius: 20,
@@ -273,43 +371,52 @@ function LyricLoungeContainer() {
                 }}
               />
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{
-                  fontWeight: 600,
-                  color: "#f0adea",
-                  marginBottom: 2,
-                  letterSpacing: "0.2px",
-                  fontSize: "1rem"
-                }}>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    color: "#f0adea",
+                    marginBottom: 2,
+                    letterSpacing: "0.2px",
+                    fontSize: "1rem"
+                  }}
+                >
                   {artist.strGenre || "Genre Unk."}
                   {" • "}
                   {artist.intFormedYear || "--"}
                   {" • "}
                   {artist.strCountry || ""}
                 </div>
-                <h1 style={{
-                  fontSize: "2.2rem",
-                  margin: "4px 0",
-                  color: "#100e0e",
-                  fontWeight: 700,
-                  letterSpacing: "-1px"
-                }}>
+                <h1
+                  style={{
+                    fontSize: "2.2rem",
+                    margin: "4px 0",
+                    color: "#100e0e",
+                    fontWeight: 700,
+                    letterSpacing: "-1px"
+                  }}
+                >
                   {artist.strArtist || "Unknown Artist"}
                 </h1>
-                <div style={{
-                  fontSize: "1rem",
-                  margin: "8px 0",
-                  color: "#3f2044",
-                  lineHeight: 1.45
-                }}>
+                <div
+                  style={{
+                    fontSize: "1rem",
+                    margin: "8px 0",
+                    color: "#3f2044",
+                    lineHeight: 1.45
+                  }}
+                >
                   {artist?.strBiographyEN
-                    ? artist.strBiographyEN.substring(0, 240) + (artist.strBiographyEN.length > 240 ? "…" : "")
+                    ? artist.strBiographyEN.substring(0, 240) +
+                      (artist.strBiographyEN.length > 240 ? "…" : "")
                     : ""}
                 </div>
                 {artist?.strWebsite && (
                   <a
-                    href={artist.strWebsite.match(/^https?:\/\//)
-                      ? artist.strWebsite
-                      : "https://" + artist.strWebsite}
+                    href={
+                      artist.strWebsite.match(/^https?:\/\//)
+                        ? artist.strWebsite
+                        : "https://" + artist.strWebsite
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -324,7 +431,8 @@ function LyricLoungeContainer() {
                       transition: "background 0.18s",
                       marginTop: 6,
                       display: "inline-block"
-                    }}>
+                    }}
+                  >
                     Official Website
                   </a>
                 )}
