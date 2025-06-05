@@ -302,6 +302,12 @@ function LyricLoungeContainer() {
             }}>
               {loading ? (
                 <div style={{ color: "#100e0e9a", gridColumn: "1/-1" }}>Loading songs…</div>
+              ) : error && musicVideos.length === 0 ? (
+                <div style={{ color: "#fa3a62", gridColumn: "1/-1" }}>
+                  {error.includes("music videos")
+                    ? "Sorry, failed to load music videos. Try reloading the page."
+                    : error}
+                </div>
               ) : filteredVideos.length === 0 ? (
                 <div style={{ color: "#100e0e99", gridColumn: "1/-1" }}>No results found.</div>
               ) : (
