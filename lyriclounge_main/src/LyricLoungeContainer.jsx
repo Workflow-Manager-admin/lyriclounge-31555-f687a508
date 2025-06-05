@@ -63,6 +63,11 @@ function LyricLoungeContainer() {
   // Fetch artist info and music videos when artist changes
   useEffect(() => {
     // PUBLIC_INTERFACE
+    let isCurrent = true; // local flag that will be unique per effect run
+    const fetchId = Symbol('artistFetch');
+
+    // Store a persistent ref for any new fetch, invalidating previous ones
+    // by scoping with closure and checking at set state time
     async function fetchData() {
       setLoading(true);
       setError("");
@@ -139,6 +144,8 @@ function LyricLoungeContainer() {
         console.error("Music video fetch error", err);
       }
 
+      // Guard: only set state if effect instance is still current
+      if (!isCurrent) return;
       setArtist(artistData);
       setMusicVideos(musicVideosData || []);
       if (musicVideosData && musicVideosData.length > 0) {
@@ -152,6 +159,8 @@ function LyricLoungeContainer() {
     }
 
     fetchData();
+    // On effect cleanup, invalidate previous fetch runs
+    return () => { isCurrent = false; };
     // eslint-disable-next-line
   }, [selectedArtistId]);
 
