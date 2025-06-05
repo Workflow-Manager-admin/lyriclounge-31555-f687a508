@@ -174,13 +174,15 @@ function LyricLoungeContainer() {
             }}>
               Loading artist information...
             </div>
-          ) : error ? (
-            <div style={{ color: "#fa3a62", width: "100%", fontWeight: 500 }}>{error}</div>
+          ) : !artist ? (
+            <div style={{ color: "#fa3a62", width: "100%", fontWeight: 500 }}>
+              {error || "Artist information not available at this time."}
+            </div>
           ) : (
             <>
               <img
                 src={ARTIST_IMAGE_URL}
-                alt={artist?.strArtist}
+                alt={artist?.strArtist || "Artist"}
                 style={{
                   borderRadius: 20,
                   width: 128,
@@ -197,11 +199,11 @@ function LyricLoungeContainer() {
                   letterSpacing: "0.2px",
                   fontSize: "1rem"
                 }}>
-                  {artist?.strGenre || "Genre Unk."}
+                  {artist.strGenre || "Genre Unk."}
                   {" • "}
-                  {artist?.intFormedYear || "--"}
+                  {artist.intFormedYear || "--"}
                   {" • "}
-                  {artist?.strCountry}
+                  {artist.strCountry || ""}
                 </div>
                 <h1 style={{
                   fontSize: "2.2rem",
@@ -210,7 +212,7 @@ function LyricLoungeContainer() {
                   fontWeight: 700,
                   letterSpacing: "-1px"
                 }}>
-                  {artist?.strArtist}
+                  {artist.strArtist || "Unknown Artist"}
                 </h1>
                 <div style={{
                   fontSize: "1rem",
