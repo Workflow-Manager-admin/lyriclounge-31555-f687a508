@@ -161,32 +161,10 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // --- PATCH: Strict artist assignment by id, covers cases like The Weeknd v. Richard Goode ---
-        let foundArtist = null;
-        if (Array.isArray(artistJson?.artists)) {
-          foundArtist = artistJson.artists.find(
-            (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
-          );
-          // Sometimes API returns other artists if an id is recycled/wrong: only allow strict id match!
-          if (foundArtist && String(foundArtist.idArtist) === String(selectedArtistId)) {
-            artistData = foundArtist;
-          } else {
-            // Defensive: if exactly one artist AND their id matches, allow (API might return [obj] or [other])
-            if (
-              artistJson.artists.length === 1 &&
-              artistJson.artists[0]?.idArtist &&
-              String(artistJson.artists[0].idArtist) === String(selectedArtistId)
-            ) {
-              artistData = artistJson.artists[0];
-            } else {
-              artistData = null;
-              // eslint-disable-next-line no-console
-              console.warn(
-                `[LyricLounge] Artist with idArtist=${selectedArtistId} was NOT found in fetched artists array; artist state not set. API response:`,
-                artistJson.artists
-              );
-            }
-          }
+        // --- ROLLBACK: Restore PREVIOUS, permissive assignment (does not strictly check idArtist) ---
+        if (Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
+          // Assign the first returned artist (may mismatch, e.g. Richard Goode for The Weeknd)
+          artistData = artistJson.artists[0];
         } else {
           artistData = null;
           // eslint-disable-next-line no-console
@@ -195,7 +173,7 @@ function LyricLoungeContainer() {
             artistJson
           );
         }
-        // artistData strictly null if not exactly matched! NO fallback/ambiguous assignment.
+        // This restores possible ambiguous/incorrect assignment as before the last fix.
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
         // Optionally: log technical error for debugging
