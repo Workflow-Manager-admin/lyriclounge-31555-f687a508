@@ -812,6 +812,297 @@ function LyricLoungeContainer() {
           </section>
         )}
 
+        {/* ---- Track Search Section ---- */}
+        <section
+          style={{
+            margin: "38px auto 0 auto",
+            maxWidth: 900,
+            padding: "24px 20px",
+            background: "#fff7fa",
+            borderRadius: "18px",
+            border: "2px solid #f0adea14",
+            marginTop: 34
+          }}
+        >
+          <form
+            onSubmit={async e => {
+              e.preventDefault();
+              if (
+                !trackSearchArtist.trim() ||
+                !trackSearchTitle.trim()
+              ) {
+                setTrackSearchError("Please enter both artist and song title.");
+                setTrackSearchResult(null);
+                return;
+              }
+              setTrackSearchError("");
+              setTrackSearchLoading(true);
+              setTrackSearchResult(null);
+              try {
+                const queryArtist = encodeURIComponent(trackSearchArtist.trim());
+                const queryTitle = encodeURIComponent(trackSearchTitle.trim());
+                const apiUrl = `https://www.theaudiodb.com/api/v1/json/2/searchtrack.php?s=${queryArtist}&t=${queryTitle}`;
+                const resp = await fetch(apiUrl);
+                if (!resp.ok) {
+                  throw new Error("Network/API error during track lookup.");
+                }
+                const data = await resp.json();
+                if (data && Array.isArray(data.track) && data.track.length > 0) {
+                  setTrackSearchResult(data.track[0]);
+                  setTrackSearchError("");
+                } else {
+                  setTrackSearchResult(null);
+                  setTrackSearchError("No matching track was found.");
+                }
+              } catch (err) {
+                setTrackSearchResult(null);
+                setTrackSearchError("Failed to fetch track info.");
+                // eslint-disable-next-line no-console
+                console.error("[Track Search] exception:", err);
+              } finally {
+                setTrackSearchLoading(false);
+              }
+            }}
+            style={{
+              marginBottom: 22,
+              width: "100%",
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              alignItems: "center"
+            }}
+            role="search"
+            autoComplete="off"
+          >
+            <input
+              type="text"
+              placeholder="Artist (e.g. Coldplay)"
+              value={trackSearchArtist}
+              onChange={e => setTrackSearchArtist(e.target.value)}
+              style={{
+                flex: "1 1 190px",
+                minWidth: 120,
+                padding: "11px 14px",
+                border: "2px solid #f0adea",
+                borderRadius: 7,
+                fontSize: "1rem",
+                fontWeight: 500,
+                outline: "none",
+                background: "#fbf9f9",
+                color: "#100e0e",
+                marginBottom: 6
+              }}
+              aria-label="Search by artist"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Song Title (e.g. Yellow)"
+              value={trackSearchTitle}
+              onChange={e => setTrackSearchTitle(e.target.value)}
+              style={{
+                flex: "1 1 190px",
+                minWidth: 120,
+                padding: "11px 14px",
+                border: "2px solid #f0adea",
+                borderRadius: 7,
+                fontSize: "1rem",
+                fontWeight: 500,
+                outline: "none",
+                background: "#fbf9f9",
+                color: "#100e0e",
+                marginBottom: 6
+              }}
+              aria-label="Search by track title"
+              required
+            />
+            <button
+              type="submit"
+              style={{
+                padding: "11px 26px",
+                minWidth: 100,
+                fontSize: "1.03em",
+                fontWeight: 700,
+                border: "none",
+                background: "#f0adea",
+                color: "#fff",
+                borderRadius: 7,
+                cursor: "pointer"
+              }}
+              disabled={trackSearchLoading}
+            >
+              {trackSearchLoading ? "Searching…" : "Search"}
+            </button>
+          </form>
+          <div>
+            {/* Status or Error UI */}
+            {trackSearchLoading && (
+              <div style={{
+                color: "#ea41c3",
+                fontWeight: 600,
+                marginBottom: 7
+              }}>
+                Searching for track…
+              </div>
+            )}
+            {trackSearchError && (
+              <div style={{
+                color: "#bb2144",
+                fontWeight: 600,
+                marginBottom: 7
+              }}>
+                {trackSearchError}
+              </div>
+            )}
+            {/* Track Search Results */}
+            {trackSearchResult && (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 23,
+                  alignItems: "flex-start",
+                  flexWrap: "wrap",
+                  marginTop: 4,
+                  background: "#f0adea11",
+                  borderRadius: 12,
+                  padding: "14px 14px 14px 0"
+                }}
+              >
+                <div>
+                  <img
+                    src={
+                      trackSearchResult.strTrackThumb ||
+                      trackSearchResult.strTrack3dCase ||
+                      trackSearchResult.strAlbumThumb ||
+                      trackSearchResult.strArtistThumb ||
+                      PLACEHOLDER_IMG
+                    }
+                    alt={`${trackSearchResult.strTrack} cover`}
+                    style={{
+                      width: 110,
+                      height: 110,
+                      objectFit: "cover",
+                      borderRadius: 10,
+                      marginRight: 12,
+                      background: "#f0adea33"
+                    }}
+                    onError={e => { if (e.target.src !== PLACEHOLDER_IMG) e.target.src = PLACEHOLDER_IMG; }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{
+                    color: "#ea41c3",
+                    fontWeight: 700,
+                    fontSize: "1.19em",
+                    marginBottom: 4
+                  }}>
+                    {trackSearchResult.strTrack || "Untitled Track"}
+                  </div>
+                  <div style={{ color: "#100e0e", fontWeight: 600, fontSize: ".98em" }}>
+                    {trackSearchResult.strArtist}
+                  </div>
+                  <div style={{ fontSize: ".98em", color: "#902e77" }}>
+                    {trackSearchResult.strAlbum && (
+                      <span>
+                        Album: <b>{trackSearchResult.strAlbum}</b>
+                        {trackSearchResult.intYearReleased && (
+                          <span style={{ color: "#e86ac8", marginLeft: 9 }}>
+                            ({trackSearchResult.intYearReleased})
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{
+                    fontSize: ".96em",
+                    color: "#a9577c",
+                    margin: "7px 0"
+                  }}>
+                    {trackSearchResult.strGenre && <span>Genre: {trackSearchResult.strGenre}</span>}
+                  </div>
+                  <div style={{
+                    fontFamily: "monospace, 'Menlo', 'Courier New', monospace",
+                    fontSize: "1.02em",
+                    marginTop: 9,
+                    whiteSpace: "pre-line",
+                    color: "#100e0e"
+                  }}>
+                    {trackSearchResult.strLyrics
+                      ? (trackSearchResult.strLyrics.length > 560
+                        ? trackSearchResult.strLyrics.slice(0, 560) + "…"
+                        : trackSearchResult.strLyrics)
+                      : (
+                        <span style={{ color: "#ce7ea8", fontWeight: 500 }}>
+                          Lyrics not found for this track.
+                        </span>
+                      )
+                    }
+                  </div>
+                  {/* Bonus: external links */}
+                  <div style={{ marginTop: 8 }}>
+                    {trackSearchResult.strMusicVid && (
+                      <a
+                        href={trackSearchResult.strMusicVid}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: "#100e0e",
+                          color: "#fff",
+                          padding: "7px 13px",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          fontSize: "0.98rem",
+                          marginRight: 10
+                        }}
+                      >
+                        ▶ Watch Music Video
+                      </a>
+                    )}
+                    {trackSearchResult.strYoutube && (
+                      <a
+                        href={trackSearchResult.strYoutube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: "#ea41c3",
+                          color: "#fff",
+                          padding: "7px 13px",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          fontSize: "0.98rem",
+                          marginRight: 10
+                        }}
+                      >
+                        ▶ YouTube
+                      </a>
+                    )}
+                    {trackSearchResult.strTrack || trackSearchResult.strArtist ? (
+                      <a
+                        href={`https://theaudiodb.com/track/${trackSearchResult.idTrack}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: "#f0adea",
+                          color: "#fff",
+                          padding: "6px 11px",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          fontSize: "0.93rem"
+                        }}
+                      >
+                        More Info
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* Search Bar & Song List */}
         <section style={{ margin: "34px auto 0 auto", maxWidth: 900, padding: "0 20px" }}>
           {/* Search bar */}
