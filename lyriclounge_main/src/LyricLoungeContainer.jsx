@@ -24,7 +24,9 @@ function LyricLoungeContainer() {
   // TheAudioDB API key
   const THEAUDIODB_APIKEY = "2";
 
-  // Fallback/placeholder image
+  // The new specified fallback for all artist images (grid/profile)
+  const FALLBACK_ARTIST_IMG = "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg/small";
+  // Retain the placeholder for tracks and others (but artists will always fallback to above)
   const PLACEHOLDER_IMG = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
   const ARTIST_STATIC_FALLBACKS = {
     "112024": "https://upload.wikimedia.org/wikipedia/commons/2/23/Daft_Punk_-_press_photo_2005.jpg", // Daft Punk
