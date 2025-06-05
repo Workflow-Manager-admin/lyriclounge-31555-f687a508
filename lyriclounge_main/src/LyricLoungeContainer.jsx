@@ -256,6 +256,40 @@ function LyricLoungeContainer() {
     setAlbumSearchLoading(false);
   }
 
+  // Effect: fetch album details when selectedAlbumId changes
+  useEffect(() => {
+    if (!selectedAlbumId) {
+      setAlbumDetails(null);
+      setAlbumDetailsError("");
+      setAlbumDetailsLoading(false);
+      return;
+    }
+    async function fetchAlbumDetails() {
+      setAlbumDetailsLoading(true);
+      setAlbumDetailsError("");
+      setAlbumDetails(null);
+
+      try {
+        const resp = await fetch(
+          `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/album.php?m=${selectedAlbumId}`
+        );
+        if (!resp.ok) throw new Error(`Album details failed: HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (data && Array.isArray(data.album) && data.album.length > 0) {
+          setAlbumDetails(data.album[0]);
+        } else {
+          setAlbumDetailsError("Album details not found.");
+          setAlbumDetails(null);
+        }
+      } catch (e) {
+        setAlbumDetailsError("Failed to load album details. [Network/API error]");
+        setAlbumDetails(null);
+      }
+      setAlbumDetailsLoading(false);
+    }
+    fetchAlbumDetails();
+  }, [selectedAlbumId, THEAUDIODB_APIKEY]);
+
   // Fetch full track details whenever the selected video/track changes
   useEffect(() => {
     // Only fetch if a track is selected
