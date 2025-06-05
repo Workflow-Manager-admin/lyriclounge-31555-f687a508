@@ -855,6 +855,7 @@ function LyricLoungeContainer() {
           ) : albums.length === 0 ? (
             <div style={{ color: "#100e0e99" }}>No albums found.</div>
           ) : (
+            // Filter out unwanted album titles
             <div
               style={{
                 display: "grid",
@@ -862,74 +863,86 @@ function LyricLoungeContainer() {
                 gap: 18
               }}
             >
-              {albums.map(album => {
-                const img =
-                  album.strAlbumThumb &&
-                  album.strAlbumThumb.trim().length > 0
-                    ? album.strAlbumThumb
-                    : "https://www.theaudiodb.com/images/media/album/thumb/default.png";
-                return (
-                  <button
-                    key={album.idAlbum || album.strAlbum}
-                    style={{
-                      background: "#fff",
-                      borderRadius: 11,
-                      boxShadow: "0 2px 10px #f0adea13",
-                      padding: 0,
-                      overflow: "hidden",
-                      border: "2px solid #f0adea33",
-                      minHeight: 190,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      cursor: album.idAlbum ? "pointer" : "default",
-                      outline: "none",
-                      position: "relative"
-                    }}
-                    aria-label={album.idAlbum ? `View details for album ${album.strAlbum}` : undefined}
-                    disabled={!album.idAlbum}
-                    onClick={() => album.idAlbum && setSelectedAlbumId(album.idAlbum)}
-                  >
-                    <img
-                      src={img}
-                      alt={album.strAlbum}
+              {albums
+                // Exclude by album title (case-insensitive)
+                .filter(album => {
+                  if (!album.strAlbum) return true;
+                  // Add all album titles to exclude to this array (lowercase for case-insensitive match)
+                  const excludedTitles = [
+                    "homework",
+                    "human after all"
+                    // add more titles as needed
+                  ];
+                  return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
+                })
+                .map(album => {
+                  const img =
+                    album.strAlbumThumb &&
+                    album.strAlbumThumb.trim().length > 0
+                      ? album.strAlbumThumb
+                      : "https://www.theaudiodb.com/images/media/album/thumb/default.png";
+                  return (
+                    <button
+                      key={album.idAlbum || album.strAlbum}
                       style={{
-                        width: "100%",
-                        height: 110,
-                        objectFit: "cover",
-                        borderTopLeftRadius: 11,
-                        borderTopRightRadius: 11,
-                        marginBottom: 0,
-                        background: "#f0adea17"
+                        background: "#fff",
+                        borderRadius: 11,
+                        boxShadow: "0 2px 10px #f0adea13",
+                        padding: 0,
+                        overflow: "hidden",
+                        border: "2px solid #f0adea33",
+                        minHeight: 190,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        cursor: album.idAlbum ? "pointer" : "default",
+                        outline: "none",
+                        position: "relative"
                       }}
-                    />
-                    <div style={{ padding: "9px 8px 10px 8px", width: "100%" }}>
-                      <div style={{
-                        fontWeight: 700,
-                        fontSize: "1.08em",
-                        color: "#ea41c3",
-                        lineHeight: "1.22"
-                      }}>
-                        {album.strAlbum}
-                      </div>
-                      {album.intYearReleased && (
+                      aria-label={album.idAlbum ? `View details for album ${album.strAlbum}` : undefined}
+                      disabled={!album.idAlbum}
+                      onClick={() => album.idAlbum && setSelectedAlbumId(album.idAlbum)}
+                    >
+                      <img
+                        src={img}
+                        alt={album.strAlbum}
+                        style={{
+                          width: "100%",
+                          height: 110,
+                          objectFit: "cover",
+                          borderTopLeftRadius: 11,
+                          borderTopRightRadius: 11,
+                          marginBottom: 0,
+                          background: "#f0adea17"
+                        }}
+                      />
+                      <div style={{ padding: "9px 8px 10px 8px", width: "100%" }}>
                         <div style={{
-                          fontSize: ".99em",
-                          color: "#9c319d",
-                          fontWeight: 500
+                          fontWeight: 700,
+                          fontSize: "1.08em",
+                          color: "#ea41c3",
+                          lineHeight: "1.22"
                         }}>
-                          {album.intYearReleased}
+                          {album.strAlbum}
                         </div>
-                      )}
-                      {album.idAlbum && (
-                        <div style={{marginTop: 8, color: "#ea41c3", fontWeight: 600, fontSize: ".94em" }}>
-                          Details
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                        {album.intYearReleased && (
+                          <div style={{
+                            fontSize: ".99em",
+                            color: "#9c319d",
+                            fontWeight: 500
+                          }}>
+                            {album.intYearReleased}
+                          </div>
+                        )}
+                        {album.idAlbum && (
+                          <div style={{marginTop: 8, color: "#ea41c3", fontWeight: 600, fontSize: ".94em" }}>
+                            Details
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
             </div>
           )}
 
