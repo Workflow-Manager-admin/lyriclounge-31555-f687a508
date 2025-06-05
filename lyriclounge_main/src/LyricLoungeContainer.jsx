@@ -603,6 +603,100 @@ function LyricLoungeContainer() {
           )}
         </section>
 
+        {/* Albums Section - always after Artist Info */}
+        <section
+          style={{
+            margin: "8px auto 0 auto", maxWidth: 900, padding: "0 20px 18px 20px",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: "1.14rem",
+              color: "#f0adea",
+              marginBottom: 10,
+              letterSpacing: 0,
+              textTransform: "uppercase"
+            }}
+          >
+            Albums
+          </div>
+          {albumsLoading ? (
+            <div style={{ color: "#100e0e9a" }}>Loading albums…</div>
+          ) : albumError ? (
+            <div style={{ color: "#fa3a62" }}>{albumError}</div>
+          ) : albums.length === 0 ? (
+            <div style={{ color: "#100e0e99" }}>No albums found.</div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(164px, 1fr))",
+                gap: 18
+              }}
+            >
+              {albums.map(album => {
+                const img =
+                  album.strAlbumThumb &&
+                  album.strAlbumThumb.trim().length > 0
+                    ? album.strAlbumThumb
+                    : "https://www.theaudiodb.com/images/media/album/thumb/default.png";
+                return (
+                  <div
+                    key={album.idAlbum || album.strAlbum}
+                    style={{
+                      background: "#fff",
+                      borderRadius: 11,
+                      boxShadow: "0 2px 10px #f0adea13",
+                      padding: 0,
+                      overflow: "hidden",
+                      border: "2px solid #f0adea33",
+                      minHeight: 190,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center"
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt={album.strAlbum}
+                      style={{
+                        width: "100%",
+                        height: 110,
+                        objectFit: "cover",
+                        borderTopLeftRadius: 11,
+                        borderTopRightRadius: 11,
+                        marginBottom: 0,
+                        background: "#f0adea17"
+                      }}
+                    />
+                    <div style={{ padding: "9px 8px 10px 8px", width: "100%">
+                    }}>
+                      <div style={{
+                        fontWeight: 700,
+                        fontSize: "1.08em",
+                        color: "#ea41c3",
+                        lineHeight: "1.22"
+                      }}>
+                        {album.strAlbum}
+                      </div>
+                      {album.intYearReleased && (
+                        <div style={{
+                          fontSize: ".99em",
+                          color: "#9c319d",
+                          fontWeight: 500
+                        }}>
+                          {album.intYearReleased}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
         {/* Search Bar & Song List */}
         <section style={{ margin: "34px auto 0 auto", maxWidth: 900, padding: "0 20px" }}>
           {/* Search bar */}
