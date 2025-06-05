@@ -576,45 +576,13 @@ function LyricLoungeContainer() {
                   boxShadow: "0 2px 20px 0 #f0adea33"
                 }}
                 onError={e => {
-                  // Fallback order: static fallback (for target artists) -> ARTISTS imgs -> placeholder
-                  const artistId = selectedArtistId;
-                  const triedSrc = e.target && e.target.src;
-
-                  // Only run fallback logic if no match for the assigned artist
-                  if (
-                    ARTIST_STATIC_FALLBACKS[artistId] &&
-                    triedSrc !== ARTIST_STATIC_FALLBACKS[artistId]
-                  ) {
-                    e.target.src = ARTIST_STATIC_FALLBACKS[artistId];
+                  // Set directly to robust global fallback on error, always. Only retry this once.
+                  if (e.target.src !== FALLBACK_ARTIST_IMG) {
+                    e.target.src = FALLBACK_ARTIST_IMG;
                     // eslint-disable-next-line no-console
                     console.warn(
-                      `Artist image for '${artist?.strArtist || artistId}' failed; falling back to static: `,
-                      ARTIST_STATIC_FALLBACKS[artistId]
-                    );
-                    return;
-                  }
-                  // 2. Try ARTISTS array image for a non-ambiguous fallback
-                  const arrObj = ARTISTS.find(ar => ar.id === artistId);
-                  if (
-                    arrObj &&
-                    arrObj.img &&
-                    arrObj.img !== triedSrc
-                  ) {
-                    e.target.src = arrObj.img;
-                    // eslint-disable-next-line no-console
-                    console.warn(
-                      `Artist image for '${artist?.strArtist || artistId}' failed; falling back to ARTISTS array img: `,
-                      arrObj.img
-                    );
-                    return;
-                  }
-                  // 3. Last-resort placeholder if above fail
-                  if (triedSrc !== PLACEHOLDER_IMG) {
-                    e.target.src = PLACEHOLDER_IMG;
-                    // eslint-disable-next-line no-console
-                    console.warn(
-                      `Artist image for '${artist?.strArtist || artistId}' failed again; showing placeholder.`,
-                      PLACEHOLDER_IMG
+                      `Artist profile image failed to load for '${artist?.strArtist || selectedArtistId}'; falling back to hard fallback image: `,
+                      FALLBACK_ARTIST_IMG
                     );
                   }
                 }}
