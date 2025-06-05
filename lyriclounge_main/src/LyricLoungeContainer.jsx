@@ -67,6 +67,11 @@ function LyricLoungeContainer() {
   const [error, setError] = useState("");
   const [trackDetails, setTrackDetails] = useState(null); // for enriched track info
 
+  // Album state (for Daft Punk 'Homework')
+  const [album, setAlbum] = useState(null);
+  const [albumLoading, setAlbumLoading] = useState(false);
+  const [albumError, setAlbumError] = useState("");
+
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
 
