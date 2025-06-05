@@ -85,6 +85,9 @@ function LyricLoungeContainer() {
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
 
+  // Utility for normalized artist id
+  const normalizeArtistId = (v) => String(v).trim();
+
   // Fetch album info for Daft Punk's "Homework" when that artist is selected.
   useEffect(() => {
     // Only fire for Daft Punk and when selecting a new artist.
@@ -92,7 +95,7 @@ function LyricLoungeContainer() {
       setAlbum(null);
       setAlbumError("");
       setAlbumLoading(false);
-      if (selectedArtistId !== "112024") {
+      if (normalizeArtistId(selectedArtistId) !== "112024") {
         return; // Not Daft Punk, do not fetch.
       }
       setAlbumLoading(true);
@@ -111,7 +114,7 @@ function LyricLoungeContainer() {
               (a) =>
                 (a?.strAlbum?.trim().toLowerCase() === "homework") &&
                 (
-                  (a?.idArtist && String(a.idArtist) === "112024") ||
+                  (a?.idArtist && normalizeArtistId(a.idArtist) === "112024") ||
                   (a?.strArtist?.trim().toLowerCase() === "daft punk")
                 )
             );
@@ -141,6 +144,9 @@ function LyricLoungeContainer() {
     let isCurrent = true; // local flag that will be unique per effect run
     const fetchId = Symbol('artistFetch');
 
+    // Utility: Ensure API param uses trimmed ID, always string
+    const safeId = normalizeArtistId(selectedArtistId);
+
     // Store a persistent ref for any new fetch, invalidating previous ones
     // by scoping with closure and checking at set state time
     async function fetchData() {
@@ -150,8 +156,8 @@ function LyricLoungeContainer() {
       let musicVideosData = null;
       let loadError = "";
 
-      const artistDetailsApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${selectedArtistId}`;
-      const musicVideosApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${selectedArtistId}`;
+      const artistDetailsApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${encodeURIComponent(safeId)}`;
+      const musicVideosApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${encodeURIComponent(safeId)}`;
 
       // Fetch artist info
       try {
@@ -165,7 +171,7 @@ function LyricLoungeContainer() {
         artistData = null;
         if (Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
           const strictArtist = artistJson.artists.find(
-            (a) => String(a.idArtist) === String(selectedArtistId)
+            (a) => normalizeArtistId(a.idArtist) === safeId
           );
           if (strictArtist) {
             artistData = strictArtist;
@@ -174,7 +180,7 @@ function LyricLoungeContainer() {
             artistData = null;
             // eslint-disable-next-line no-console
             console.warn(
-              `[LyricLounge] No artist found with idArtist === '${selectedArtistId}' in TheAudioDB API response, artists array:`,
+              `[LyricLounge] No artist found with idArtist === '${safeId}' in TheAudioDB API response, artists array:`,
               artistJson.artists
             );
           }
