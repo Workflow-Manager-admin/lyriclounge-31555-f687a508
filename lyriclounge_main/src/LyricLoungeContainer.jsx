@@ -383,6 +383,21 @@ function LyricLoungeContainer() {
                   objectFit: "cover",
                   boxShadow: "0 2px 20px 0 #f0adea33"
                 }}
+                onError={e => {
+                  // Fallback to generic only if not already at default; prevents infinite loop
+                  if (
+                    e.target &&
+                    e.target.src !== "https://www.theaudiodb.com/images/media/artist/thumb/default.png"
+                  ) {
+                    // Log a warning for developers in console
+                    // eslint-disable-next-line no-console
+                    console.warn(
+                      `Artist image failed to load for '${artist?.strArtist || selectedArtistId}': `,
+                      e.target.src
+                    );
+                    e.target.src = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+                  }
+                }}
               />
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div
