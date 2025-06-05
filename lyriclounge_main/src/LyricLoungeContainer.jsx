@@ -693,7 +693,117 @@ function LyricLoungeContainer() {
           )}
         </section>
 
-        {/* (Albums Section removed per instructions) */}
+        {/* Daft Punk 'Homework' album section */}
+        {selectedArtistId === "112024" && (
+          <section
+            style={{
+              margin: "28px auto 0 auto",
+              maxWidth: 900,
+              padding: "24px 20px",
+              background: "#f0adea06",
+              borderRadius: "16px",
+              minHeight: 86,
+              border: album ? "2px solid #f0adea22" : "none"
+            }}
+          >
+            <div style={{ color: "#ea41c3", fontWeight: 700, fontSize: "1.15rem", marginBottom: 9, letterSpacing: 1 }}>
+              Album: <span style={{ color: "#100e0e" }}>Homework</span>
+            </div>
+            {albumLoading ? (
+              <div style={{ color: "#e86ac8" }}>Loading album info…</div>
+            ) : albumError ? (
+              <div style={{ color: "#bb2144" }}>{albumError}</div>
+            ) : album ? (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 22, flexWrap: "wrap" }}>
+                {album.strAlbumThumb && (
+                  <img
+                    src={album.strAlbumThumb}
+                    alt="Homework Album"
+                    style={{
+                      width: 106,
+                      height: 106,
+                      objectFit: "cover",
+                      borderRadius: 13,
+                      background: "#eee",
+                      boxShadow: "0 2px 12px 0 #ea41c322"
+                    }}
+                  />
+                )}
+                <div style={{ flex: 1, minWidth: 200, marginTop: 2 }}>
+                  <div style={{ fontWeight: 700, fontSize: "1.06em", color: "#902e77" }}>
+                    {album.strArtist} – <b>{album.strAlbum}</b>
+                    {album.intYearReleased ? (
+                      <span style={{ fontWeight: 500, color: "#e86ac8", marginLeft: 7 }}>
+                        ({album.intYearReleased})
+                      </span>
+                    ) : null}
+                  </div>
+                  <div style={{ color: "#654491", fontSize: ".98em", margin: "7px 0 6px 0" }}>
+                    {album.strGenre && <span>{album.strGenre}</span>}
+                    {album.strStyle && (
+                      <span style={{ marginLeft: 13 }}>Style: {album.strStyle}</span>
+                    )}
+                  </div>
+                  {album.strDescriptionEN && (
+                    <div
+                      style={{
+                        color: "#20202a",
+                        fontSize: ".97em",
+                        fontWeight: 400,
+                        marginTop: 3,
+                        maxWidth: 500
+                      }}
+                    >
+                      {album.strDescriptionEN.length > 250
+                        ? album.strDescriptionEN.slice(0, 250) + "…"
+                        : album.strDescriptionEN}
+                    </div>
+                  )}
+                  {/* If album external links available */}
+                  <div style={{ marginTop: 9 }}>
+                    {album.strAlbumSTRMIX && (
+                      <a
+                        href={album.strAlbumSTRMIX}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: "#fff",
+                          background: "#902e77",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          fontSize: ".98rem",
+                          padding: "3px 11px",
+                          textDecoration: "none",
+                          marginRight: 14
+                        }}
+                      >
+                        Listen on Stream Mix
+                      </a>
+                    )}
+                    {album.strMusicVid && (
+                      <a
+                        href={album.strMusicVid}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: "#fff",
+                          background: "#ea41c3",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          fontSize: ".98rem",
+                          padding: "3px 11px",
+                          textDecoration: "none"
+                        }}
+                      >
+                        Music Video
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </section>
+        )}
 
         {/* Search Bar & Song List */}
         <section style={{ margin: "34px auto 0 auto", maxWidth: 900, padding: "0 20px" }}>
