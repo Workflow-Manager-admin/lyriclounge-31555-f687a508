@@ -57,9 +57,22 @@ function LyricLoungeContainer() {
           throw new Error(`Music video fetch failed: HTTP ${mvResp.status}`);
         }
         const mvJson = await mvResp.json();
-        musicVideosData = mvJson?.mvids || [];
+        // Debug log actual response for diagnosis
+        // If there is no "mvids" property but "mvid" is present, use that (API can be inconsistent)
+        let rawMvs = mvJson?.mvids || mvJson?.mvid || [];
+
+        // Extra debug: If still not array, check for more clues
+        if (!Array.isArray(rawMvs)) {
+          // Collect keys in mvJson for diagnosis
+          // eslint-disable-next-line no-console
+          console.error("Music video API response format error", mvJson);
+          rawMvs = [];
+        }
+        musicVideosData = rawMvs;
       } catch (err) {
         loadError += (loadError ? " " : "") + "Sorry, failed to load music videos.";
+        // eslint-disable-next-line no-console
+        console.error("Music video fetch error", err);
       }
 
       setArtist(artistData);
