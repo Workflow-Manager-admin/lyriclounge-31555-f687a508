@@ -149,6 +149,9 @@ function LyricLoungeContainer() {
     // Utility: Ensure API param uses trimmed ID, always string
     const safeId = normalizeArtistId(selectedArtistId);
 
+    // All API fetches below use only selectedArtistId (no mapping, fallback, spelling, or casing adjustments)
+    // Do not use artist name or alternative IDs for The Weeknd—MUST be '121335' or selectedArtistId.
+
     // Store a persistent ref for any new fetch, invalidating previous ones
     // by scoping with closure and checking at set state time
     async function fetchData() {
