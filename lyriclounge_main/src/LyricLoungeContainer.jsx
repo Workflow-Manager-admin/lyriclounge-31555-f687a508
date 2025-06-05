@@ -855,7 +855,9 @@ function LyricLoungeContainer() {
           ) : albums.length === 0 ? (
             <div style={{ color: "#100e0e99" }}>No albums found.</div>
           ) : (
-            {/* Filter out unwanted album titles only for Daft Punk; show all for other artists */}
+            {/* 
+              Filter out unwanted album titles only for Daft Punk; show all for other artists 
+            */}
             <div
               style={{
                 display: "grid",
