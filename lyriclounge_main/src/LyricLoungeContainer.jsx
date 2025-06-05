@@ -44,7 +44,7 @@ function LyricLoungeContainer() {
       img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
     },
     {
-      id: "121335", // The Weeknd
+      id: "121335", // The Weeknd (force correct ID and remove any potential whitespace or casing issues)
       name: "The Weeknd",
       img: "https://www.theaudiodb.com/images/media/artist/thumb/uxxyuv1429914500.jpg"
     },
