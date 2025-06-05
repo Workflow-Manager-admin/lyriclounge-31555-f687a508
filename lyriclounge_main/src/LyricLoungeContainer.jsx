@@ -855,9 +855,6 @@ function LyricLoungeContainer() {
           ) : albums.length === 0 ? (
             <div style={{ color: "#100e0e99" }}>No albums found.</div>
           ) : (
-            {/* 
-              Filter out unwanted album titles only for Daft Punk; show all for other artists 
-            */}
             <div
               style={{
                 display: "grid",
@@ -865,30 +862,24 @@ function LyricLoungeContainer() {
                 gap: 18
               }}
             >
-              {albums
-                .filter(album => {
-                  if (!album.strAlbum) return true;
-                  // Only apply exclusion for Daft Punk (by artist name or artist ID)
-                  const DAFT_PUNK_ID = "112024";
-                  const DAFT_PUNK_NAMES = ["Daft Punk"];
-                  // Try to get live or fallback artist name
-                  let artistName = artist?.strArtist || ARTISTS.find(a => a.id === selectedArtistId)?.name || "";
-                  if (
-                    (selectedArtistId === DAFT_PUNK_ID) ||
-                    DAFT_PUNK_NAMES.includes(artistName)
-                  ) {
-                    // List of Daft Punk albums to exclude (case-insensitive)
-                    const excludedTitles = [
-                      "homework",
-                      "human after all"
-                      // add more titles as needed
-                    ];
-                    return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
-                  }
-                  // For other artists, show all available albums
-                  return true;
-                })
-                .map(album => {
+              {
+                // Filter out unwanted album titles only for Daft Punk; show all for other artists
+                albums
+                  .filter(album => {
+                    if (!album.strAlbum) return true;
+                    const DAFT_PUNK_ID = "112024";
+                    // Only exclude certain albums if Daft Punk is selected
+                    if (selectedArtistId === DAFT_PUNK_ID) {
+                      const excludedTitles = [
+                        "homework",
+                        "human after all"
+                        // Add more titles as necessary
+                      ];
+                      return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
+                    }
+                    return true;
+                  })
+                  .map(album => {
                   const img =
                     album.strAlbumThumb &&
                     album.strAlbumThumb.trim().length > 0
