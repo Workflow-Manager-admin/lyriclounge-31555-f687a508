@@ -57,18 +57,30 @@ function LyricLoungeContainer() {
           throw new Error(`Music video fetch failed: HTTP ${mvResp.status}`);
         }
         const mvJson = await mvResp.json();
-        // Debug log actual response for diagnosis
-        // If there is no "mvids" property but "mvid" is present, use that (API can be inconsistent)
-        let rawMvs = mvJson?.mvids || mvJson?.mvid || [];
-
-        // Extra debug: If still not array, check for more clues
-        if (!Array.isArray(rawMvs)) {
-          // Collect keys in mvJson for diagnosis
+        // --- BEGIN PATCH: robustly detect keys and enhance debugging ---
+        let vidsKey = "mvids";
+        let arrayVal = mvJson?.[vidsKey];
+        if (!arrayVal && "mvid" in mvJson) {
+          vidsKey = "mvid";
+          arrayVal = mvJson.mvid;
+        }
+        let rawMvs = Array.isArray(arrayVal) ? arrayVal : [];
+        // Extra: surface detail if the array is empty but there was a structural mismatch
+        if ((arrayVal && !Array.isArray(arrayVal)) || (!arrayVal && Object.keys(mvJson || {}).length > 0)) {
           // eslint-disable-next-line no-console
-          console.error("Music video API response format error", mvJson);
-          rawMvs = [];
+          console.error(
+            "LyricLounge DEBUG: Unexpected music video API structure for key:",
+            vidsKey,
+            mvJson
+          );
+        }
+        if (!rawMvs.length) {
+          // Also log total response for diagnosis in case of null/empty data
+          // eslint-disable-next-line no-console
+          console.error("LyricLounge DEBUG: No music videos found for artist id", ARTIST_ID, "Raw response:", mvJson);
         }
         musicVideosData = rawMvs;
+        // --- END PATCH ---
       } catch (err) {
         loadError += (loadError ? " " : "") + "Sorry, failed to load music videos.";
         // eslint-disable-next-line no-console
@@ -318,7 +330,12 @@ function LyricLoungeContainer() {
               ) : error && musicVideos.length === 0 ? (
                 <div style={{ color: "#fa3a62", gridColumn: "1/-1" }}>
                   {error.includes("music videos")
-                    ? "Sorry, failed to load music videos. Try reloading the page."
+                    ? <>
+                        Sorry, failed to load music videos. Try reloading the page.<br />
+                        <span style={{ fontSize: "0.95em", color: "#bb2144", fontWeight: 400 }}>
+                          (See browser console for technical error details.)
+                        </span>
+                      </>
                     : error}
                 </div>
               ) : filteredVideos.length === 0 ? (
@@ -473,3 +490,4 @@ function LyricLoungeContainer() {
 }
 
 export default LyricLoungeContainer;
+
