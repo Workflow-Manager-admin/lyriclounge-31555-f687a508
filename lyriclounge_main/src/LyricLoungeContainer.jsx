@@ -448,7 +448,7 @@ function LyricLoungeContainer() {
               let thumb;
               if (
                 artist &&
-                ar.id === selectedArtistId &&
+                normalizeArtistId(ar.id) === normalizeArtistId(selectedArtistId) &&
                 artist.strArtistThumb &&
                 artist.strArtistThumb.trim().length > 0
               ) {
@@ -483,11 +483,11 @@ function LyricLoungeContainer() {
                   onClick={() => setSelectedArtistId(ar.id)}
                   style={{
                     background:
-                      selectedArtistId === ar.id
+                      normalizeArtistId(selectedArtistId) === normalizeArtistId(ar.id)
                         ? "linear-gradient(110deg,#fff7fa,#ffc3ee 95%)"
                         : "#fff",
                     border:
-                      selectedArtistId === ar.id
+                      normalizeArtistId(selectedArtistId) === normalizeArtistId(ar.id)
                         ? "2.6px solid #f0adea"
                         : "2px solid #ded3d6",
                     borderRadius: 16,
@@ -495,7 +495,7 @@ function LyricLoungeContainer() {
                     cursor: "pointer",
                     outline: "none",
                     boxShadow:
-                      selectedArtistId === ar.id
+                      normalizeArtistId(selectedArtistId) === normalizeArtistId(ar.id)
                         ? "0 4px 18px 0 #f0adea14"
                         : "0 2px 10px #100e0e06",
                     overflow: "hidden",
@@ -531,7 +531,7 @@ function LyricLoungeContainer() {
                       style={{
                         fontWeight: 700,
                         color:
-                          selectedArtistId === ar.id
+                          normalizeArtistId(selectedArtistId) === normalizeArtistId(ar.id)
                             ? "#e86ac8"
                             : "#100e0e",
                         fontSize: "1.04em"
