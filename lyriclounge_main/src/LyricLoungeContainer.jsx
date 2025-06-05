@@ -161,10 +161,22 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // --- ROLLBACK: Restore PREVIOUS, permissive assignment (does not strictly check idArtist) ---
+        // --- REFACTOR: Strictly filter for correct artist by idArtist, use .find, log warning if not found ---
         if (Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
-          // Assign the first returned artist (may mismatch, e.g. Richard Goode for The Weeknd)
-          artistData = artistJson.artists[0];
+          const thisArtist = artistJson.artists.find(
+            (a) => String(a.idArtist) === String(selectedArtistId)
+          );
+          if (thisArtist) {
+            artistData = thisArtist;
+          } else {
+            artistData = null;
+            // Log a warning if no artist with matching idArtist is found
+            // eslint-disable-next-line no-console
+            console.warn(
+              `[LyricLounge] No artist object with idArtist === \`${selectedArtistId}\` found in API response. Full response:`,
+              artistJson.artists
+            );
+          }
         } else {
           artistData = null;
           // eslint-disable-next-line no-console
@@ -173,7 +185,7 @@ function LyricLoungeContainer() {
             artistJson
           );
         }
-        // This restores possible ambiguous/incorrect assignment as before the last fix.
+        // This ensures The Weeknd and any artist match by id, not by order or fallback.
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
         // Optionally: log technical error for debugging
