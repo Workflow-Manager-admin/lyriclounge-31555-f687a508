@@ -47,6 +47,7 @@ function LyricLoungeContainer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [trackDetails, setTrackDetails] = useState(null); // for enriched track info
 
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
@@ -140,7 +141,7 @@ function LyricLoungeContainer() {
       } else {
         setSelectedVideo(null);
       }
-
+      setTrackDetails(null); // clear last track enrichment on artist change
       setError(loadError);
       setLoading(false);
     }
@@ -148,6 +149,36 @@ function LyricLoungeContainer() {
     fetchData();
     // eslint-disable-next-line
   }, [selectedArtistId]);
+
+  // Fetch full track details whenever the selected video/track changes
+  useEffect(() => {
+    // Only fetch if a track is selected
+    async function fetchTrackDetails() {
+      if (!selectedVideo || !selectedVideo.idTrack) {
+        setTrackDetails(null);
+        return;
+      }
+      // PUBLIC_INTERFACE: Fetches detailed track info (including lyrics)
+      setTrackDetails(null); // show loading state if needed
+      try {
+        const resp = await fetch(`https://www.theaudiodb.com/api/v1/json/2/track.php?m=${selectedVideo.idTrack}`);
+        if (!resp.ok) {
+          throw new Error("Track details fetch failed");
+        }
+        const data = await resp.json();
+        if (data && data.track && data.track.length) {
+          setTrackDetails(data.track[0]);
+        } else {
+          setTrackDetails(null);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to fetch track details", e);
+        setTrackDetails(null);
+      }
+    }
+    fetchTrackDetails();
+  }, [selectedVideo]);
 
   // Filter music videos by search term
   const filteredVideos = musicVideos.filter((vid) => {
