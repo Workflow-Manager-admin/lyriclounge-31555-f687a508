@@ -37,6 +37,7 @@ function LyricLoungeContainer() {
 
   // Demo/hardcoded artists (ID, name, imageURL)
   // Daft Punk: 112024, name, and thumbnail from TheAudioDB
+  // Tamil artists sourced and verified via TheAudioDB artist search and by public images where needed.
   const ARTISTS = [
     {
       id: "111239", // Coldplay
@@ -57,6 +58,32 @@ function LyricLoungeContainer() {
       id: "112419", // Imagine Dragons
       name: "Imagine Dragons",
       img: ARTIST_STATIC_FALLBACKS["112419"]
+    },
+    // ==== Tamil Artists Addition ====
+    {
+      id: "123131", // A. R. Rahman, official TheAudioDB ID
+      name: "A. R. Rahman",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/uwxxrq1431815827.jpg" // official TheAudioDB
+    },
+    {
+      id: "151417", // Sid Sriram, TheAudioDB ID
+      name: "Sid Sriram",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/iy9d5s1570178761.jpg" // TheAudioDB
+    },
+    {
+      id: "119157", // Ilaiyaraaja, TheAudioDB ID
+      name: "Ilaiyaraaja",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/42xwwv1624867723.jpg" // TheAudioDB
+    },
+    {
+      id: "144548", // Anirudh Ravichander, TheAudioDB ID
+      name: "Anirudh Ravichander",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/uqvvsx1469286679.jpg" // TheAudioDB
+    },
+    {
+      id: "112537", // Shreya Ghoshal, TheAudioDB ID
+      name: "Shreya Ghoshal",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/7gvrnq1688579127.jpg" // TheAudioDB
     }
   ];
 
