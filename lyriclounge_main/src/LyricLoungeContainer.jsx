@@ -667,6 +667,133 @@ function LyricLoungeContainer() {
           >
             Albums
           </div>
+          {/* Album Search UI */}
+          <form
+            onSubmit={handleAlbumSearch}
+            style={{
+              display: "flex",
+              gap: 10,
+              margin: "0 0 13px 0",
+              flexWrap: "wrap"
+            }}
+            autoComplete="off"
+            role="search"
+            aria-label="Search album by name"
+          >
+            <input
+              type="search"
+              name="album-search"
+              aria-label="Search for specific album"
+              placeholder="Search by album title…"
+              value={albumSearchTerm}
+              onChange={e => { setAlbumSearchTerm(e.target.value); setAlbumSearchError(""); setAlbumSearchResult(null); }}
+              style={{
+                flex: 1,
+                minWidth: 180,
+                padding: "10px 14px",
+                border: "2px solid #ea41c3",
+                borderRadius: "8px",
+                fontSize: ".98em",
+                fontWeight: 500,
+                outline: "none",
+                background: "#fefbff",
+                color: "#100e0e"
+              }}
+              disabled={albumsLoading || albumSearchLoading}
+            />
+            <button
+              type="submit"
+              className="btn"
+              style={{
+                minWidth: 92,
+                background: "#ea41c3",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: ".97em",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                opacity: albumSearchLoading ? 0.64 : 1,
+                transition: "opacity 0.17s"
+              }}
+              disabled={albumsLoading || albumSearchLoading || !albumSearchTerm.trim()}
+            >
+              {albumSearchLoading ? "Searching…" : "Find Album"}
+            </button>
+          </form>
+          {albumSearchError && (
+            <div style={{ color: "#fa3a62", fontSize: ".99em", marginBottom: 8 }}>{albumSearchError}</div>
+          )}
+          {/* Searched Album Result (if found) */}
+          {albumSearchResult && (
+            <div
+              style={{
+                background: "#fff",
+                border: "2px solid #ea41c3",
+                borderRadius: 13,
+                marginBottom: 18,
+                padding: "0",
+                display: "flex",
+                alignItems: "flex-start",
+                maxWidth: 540,
+                boxShadow: "0 2px 10px #ea41c326"
+              }}
+            >
+              <img
+                src={
+                  albumSearchResult.strAlbumThumb && albumSearchResult.strAlbumThumb.trim().length > 0
+                    ? albumSearchResult.strAlbumThumb
+                    : "https://www.theaudiodb.com/images/media/album/thumb/default.png"
+                }
+                alt={albumSearchResult.strAlbum}
+                style={{
+                  width: 110, height: 110, objectFit: "cover",
+                  borderTopLeftRadius: 12, borderBottomLeftRadius: 12,
+                  background: "#f0adea12", flexShrink: 0
+                }}
+              />
+              <div style={{ padding: "13px 15px 10px 13px", flex: 1 }}>
+                <div style={{
+                  fontWeight: 700, fontSize: "1.13em",
+                  color: "#ea41c3", marginBottom: 5
+                }}>
+                  {albumSearchResult.strAlbum}
+                </div>
+                {albumSearchResult.intYearReleased && (
+                  <div style={{
+                    fontSize: ".97em",
+                    color: "#9c319d",
+                    fontWeight: 600,
+                    marginBottom: 2
+                  }}>{albumSearchResult.intYearReleased}</div>
+                )}
+                {albumSearchResult.strLabel && (
+                  <div style={{
+                    fontSize: ".97em",
+                    color: "#9464bb",
+                    marginBottom: 2
+                  }}>Label: {albumSearchResult.strLabel}</div>
+                )}
+                {albumSearchResult.strDescriptionEN && (
+                  <div style={{
+                    color: "#4a2362", fontSize: ".97em", marginTop: 5
+                  }}>
+                    {albumSearchResult.strDescriptionEN.substring(0, 140)}
+                    {albumSearchResult.strDescriptionEN.length > 140 ? "…" : ""}
+                  </div>
+                )}
+                {albumSearchResult.strAlbumCDart &&
+                  <div style={{ marginTop: 8 }}>
+                    <img
+                      src={albumSearchResult.strAlbumCDart}
+                      alt="CD Art"
+                      style={{ height: 36, background: "#f0adea08", borderRadius: 8 }}
+                    />
+                  </div>}
+              </div>
+            </div>
+          )}
+          {/* Only display album grid when not loading/searching */}
           {albumsLoading ? (
             <div style={{ color: "#100e0e9a" }}>Loading albums…</div>
           ) : albumError ? (
