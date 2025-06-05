@@ -333,22 +333,23 @@ function LyricLoungeContainer() {
 
   // Robust fallback for artist image (profile area)
   const getValidArtistImage = () => {
+    const normId = normalizeArtistId(selectedArtistId);
     // 1. Use API img if present, not empty, and matches selected artist
     if (
       artist &&
       artist?.idArtist &&
-      String(artist.idArtist) === String(selectedArtistId) &&
+      normalizeArtistId(artist.idArtist) === normId &&
       artist?.strArtistThumb &&
       artist.strArtistThumb.trim() !== ""
     ) {
       return artist.strArtistThumb;
     }
     // 2. Hard fallback for these three key artists
-    if (ARTIST_STATIC_FALLBACKS[selectedArtistId]) {
-      return ARTIST_STATIC_FALLBACKS[selectedArtistId];
+    if (ARTIST_STATIC_FALLBACKS[normId]) {
+      return ARTIST_STATIC_FALLBACKS[normId];
     }
-    // 3. ARTISTS array
-    const arObj = ARTISTS.find((ar) => ar.id === selectedArtistId);
+    // 3. ARTISTS array (normalize for comparison)
+    const arObj = ARTISTS.find((ar) => normalizeArtistId(ar.id) === normId);
     if (arObj && arObj.img && arObj.img.trim() !== "") {
       return arObj.img;
     }
