@@ -863,12 +863,12 @@ function LyricLoungeContainer() {
               }}
             >
               {
-                // Filter out unwanted album titles only for Daft Punk; show all for other artists
+                // Filter out unwanted album titles only for Daft Punk; show all albums for other artists
                 albums
                   .filter(album => {
                     if (!album.strAlbum) return true;
+                    // Exclude certain albums ONLY if selected artist is Daft Punk
                     const DAFT_PUNK_ID = "112024";
-                    // Only exclude certain albums if Daft Punk is selected
                     if (selectedArtistId === DAFT_PUNK_ID) {
                       const excludedTitles = [
                         "homework",
@@ -877,6 +877,7 @@ function LyricLoungeContainer() {
                       ];
                       return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
                     }
+                    // For all other artists, always return true (show all albums)
                     return true;
                   })
                   .map(album => {
