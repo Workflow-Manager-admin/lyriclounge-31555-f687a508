@@ -86,19 +86,20 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // Ensure artist state only set if ID matches selectedArtistId
+        // Robust artist assignment: Find artist by idArtist matching selectedArtistId
         let foundArtist = null;
         if (Array.isArray(artistJson?.artists)) {
           foundArtist = artistJson.artists.find(
             (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
           );
           if (foundArtist) {
+            // Extra: defensively ensure no stale data for mismatched IDs
             artistData = foundArtist;
           } else {
             artistData = null;
             // eslint-disable-next-line no-console
             console.warn(
-              `[LyricLounge] Artist with idArtist=${selectedArtistId} was not found in fetched artist list. API response:`,
+              `[LyricLounge] Artist with idArtist=${selectedArtistId} was NOT found in fetched artists array; artist state not set. API response:`,
               artistJson.artists
             );
           }
@@ -106,13 +107,16 @@ function LyricLoungeContainer() {
           artistData = null;
           // eslint-disable-next-line no-console
           console.warn(
-            `[LyricLounge] Artist API response didn't have an "artists" array. Full response:`,
+            `[LyricLounge] Artist API response did not contain a valid 'artists' array. Full response:`,
             artistJson
           );
         }
-        // Never assign ambiguous fallback: artistData will remain null if not found.
+        // artistData remains null if not exactly matched – NO ambiguous assignment!
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
+        // Optionally: log technical error for debugging
+        // eslint-disable-next-line no-console
+        console.error("[LyricLounge] Exception during fetch of artist info:", err);
       }
 
       // Fetch music videos
