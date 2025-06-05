@@ -31,12 +31,12 @@ function LyricLoungeContainer() {
   const ARTIST_STATIC_FALLBACKS = {
     "135088": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Adele_2016.jpg", // Adele
     "112419": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Imagine_Dragons_Lollapalooza_2014_%28cropped%29.jpg", // Imagine Dragons
-    // The Weeknd fallback: good press photo as backup
-    "121335": "https://upload.wikimedia.org/wikipedia/commons/3/31/The_Weeknd_2018.png"
+    // Daft Punk fallback (if needed in future): original not listed but kept here for consistency
+    "112024": "https://www.theaudiodb.com/images/media/artist/thumb/uxwuqw1486114912.jpg"
   };
 
   // Demo/hardcoded artists (ID, name, imageURL)
-  // The Weeknd: 121335, name, and thumbnail from TheAudioDB
+  // Daft Punk: 112024, name, and thumbnail from TheAudioDB
   const ARTISTS = [
     {
       id: "111239", // Coldplay
@@ -44,9 +44,9 @@ function LyricLoungeContainer() {
       img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
     },
     {
-      id: "121335", // The Weeknd
-      name: "The Weeknd",
-      img: "https://www.theaudiodb.com/images/media/artist/thumb/wvxxvr1422742227.jpg"
+      id: "112024", // Daft Punk
+      name: "Daft Punk",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/uxwuqw1486114912.jpg"
     },
     {
       id: "135088", // Adele
