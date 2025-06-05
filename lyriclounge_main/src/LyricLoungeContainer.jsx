@@ -176,10 +176,24 @@ function LyricLoungeContainer() {
   );
 
   // Get artist thumb image based on current selection (API image sometimes missing/corrupt)
-  const currentArtistPic =
-    ARTISTS.find((ar) => ar.id === selectedArtistId)?.img ||
-    artist?.strArtistThumb ||
-    "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+  // Updated strategy:
+  // 1. Use the API image (artist?.strArtistThumb) if it's available and not empty
+  // 2. Otherwise, use the fallback from the ARTISTS array for initial load/hardcoded fallback
+  // 3. Fallback to AudioDB default
+  const getValidArtistImage = () => {
+    // Prefer live API data if available and valid
+    if (artist?.strArtistThumb && artist.strArtistThumb.trim() !== "") {
+      return artist.strArtistThumb;
+    }
+    // Fallback: use the static array (may be stale if list grows)
+    const arObj = ARTISTS.find((ar) => ar.id === selectedArtistId);
+    if (arObj && arObj.img && arObj.img.trim() !== "") {
+      return arObj.img;
+    }
+    // Last resort: AudioDB generic
+    return "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+  };
+  const currentArtistPic = getValidArtistImage();
 
   return (
     <div
