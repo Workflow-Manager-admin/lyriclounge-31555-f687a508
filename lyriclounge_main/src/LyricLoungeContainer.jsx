@@ -30,28 +30,51 @@ function LyricLoungeContainer() {
 
   // Fetch artist info and music video list
   useEffect(() => {
+    // PUBLIC_INTERFACE
     async function fetchData() {
-      try {
-        setLoading(true);
-        const [artistResp, mvResp] = await Promise.all([
-          fetch(ARTIST_DETAILS_API),
-          fetch(MUSIC_VIDEOS_API),
-        ]);
-        const artistJson = await artistResp.json();
-        const mvJson = await mvResp.json();
+      setLoading(true);
+      setError("");
+      let artistData = null;
+      let musicVideosData = null;
+      let loadError = "";
 
-        setArtist(artistJson?.artists?.[0] || null);
-        setMusicVideos(mvJson?.mvids || []);
-        if (mvJson?.mvids?.length > 0) {
-          setSelectedVideo(mvJson.mvids[0]);
+      // Fetch artist info
+      try {
+        const artistResp = await fetch(ARTIST_DETAILS_API);
+        if (!artistResp.ok) {
+          throw new Error(`Artist info fetch failed: HTTP ${artistResp.status}`);
         }
-        setError("");
-      } catch (e) {
-        setError("Sorry, failed to load artist or music videos.");
-      } finally {
-        setLoading(false);
+        const artistJson = await artistResp.json();
+        artistData = artistJson?.artists?.[0] || null;
+      } catch (err) {
+        loadError = "Sorry, failed to load artist information.";
       }
+
+      // Fetch music videos
+      try {
+        const mvResp = await fetch(MUSIC_VIDEOS_API);
+        if (!mvResp.ok) {
+          throw new Error(`Music video fetch failed: HTTP ${mvResp.status}`);
+        }
+        const mvJson = await mvResp.json();
+        musicVideosData = mvJson?.mvids || [];
+      } catch (err) {
+        loadError += (loadError ? " " : "") + "Sorry, failed to load music videos.";
+      }
+
+      setArtist(artistData);
+      setMusicVideos(musicVideosData || []);
+      // Select the first available music video, or clear if none.
+      if (musicVideosData && musicVideosData.length > 0) {
+        setSelectedVideo(musicVideosData[0]);
+      } else {
+        setSelectedVideo(null);
+      }
+
+      setError(loadError);
+      setLoading(false);
     }
+
     fetchData();
     // eslint-disable-next-line
   }, []);
