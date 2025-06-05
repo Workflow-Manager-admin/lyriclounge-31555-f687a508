@@ -85,7 +85,27 @@ function LyricLoungeContainer() {
           throw new Error(`Artist info fetch failed: HTTP ${artistResp.status}`);
         }
         const artistJson = await artistResp.json();
-        artistData = artistJson?.artists?.[0] || null;
+
+        // Use .find() to get the matching artist by ID
+        if (Array.isArray(artistJson?.artists)) {
+          artistData =
+            artistJson.artists.find(
+              (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
+            ) || null;
+          if (!artistData && artistJson.artists.length) {
+            // eslint-disable-next-line no-console
+            console.warn(
+              `[LyricLounge] Could not find artist data for id=${selectedArtistId}, using default returned artist:`,
+              artistJson.artists[0]
+            );
+          }
+        } else {
+          artistData = null;
+        }
+        if (!artistData && Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
+          artistData = artistJson.artists[0]; // fallback to first, log warning above
+        }
+
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
       }
