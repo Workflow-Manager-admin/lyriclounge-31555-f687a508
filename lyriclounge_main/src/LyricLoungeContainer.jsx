@@ -161,22 +161,31 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // Robust artist assignment: Find artist by idArtist matching selectedArtistId
+        // --- PATCH: Strict artist assignment by id, covers cases like The Weeknd v. Richard Goode ---
         let foundArtist = null;
         if (Array.isArray(artistJson?.artists)) {
           foundArtist = artistJson.artists.find(
             (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
           );
-          if (foundArtist) {
-            // Extra: defensively ensure no stale data for mismatched IDs
+          // Sometimes API returns other artists if an id is recycled/wrong: only allow strict id match!
+          if (foundArtist && String(foundArtist.idArtist) === String(selectedArtistId)) {
             artistData = foundArtist;
           } else {
-            artistData = null;
-            // eslint-disable-next-line no-console
-            console.warn(
-              `[LyricLounge] Artist with idArtist=${selectedArtistId} was NOT found in fetched artists array; artist state not set. API response:`,
-              artistJson.artists
-            );
+            // Defensive: if exactly one artist AND their id matches, allow (API might return [obj] or [other])
+            if (
+              artistJson.artists.length === 1 &&
+              artistJson.artists[0]?.idArtist &&
+              String(artistJson.artists[0].idArtist) === String(selectedArtistId)
+            ) {
+              artistData = artistJson.artists[0];
+            } else {
+              artistData = null;
+              // eslint-disable-next-line no-console
+              console.warn(
+                `[LyricLounge] Artist with idArtist=${selectedArtistId} was NOT found in fetched artists array; artist state not set. API response:`,
+                artistJson.artists
+              );
+            }
           }
         } else {
           artistData = null;
@@ -186,7 +195,7 @@ function LyricLoungeContainer() {
             artistJson
           );
         }
-        // artistData remains null if not exactly matched – NO ambiguous assignment!
+        // artistData strictly null if not exactly matched! NO fallback/ambiguous assignment.
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
         // Optionally: log technical error for debugging
