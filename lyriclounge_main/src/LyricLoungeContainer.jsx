@@ -75,6 +75,56 @@ function LyricLoungeContainer() {
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
 
+  // Fetch album info for Daft Punk's "Homework" when that artist is selected.
+  useEffect(() => {
+    // Only fire for Daft Punk and when selecting a new artist.
+    async function fetchAlbum() {
+      setAlbum(null);
+      setAlbumError("");
+      setAlbumLoading(false);
+      if (selectedArtistId !== "112024") {
+        return; // Not Daft Punk, do not fetch.
+      }
+      setAlbumLoading(true);
+      try {
+        // Robustly fetch by artist and album (case-insensitive match both)
+        const url = `https://www.theaudiodb.com/api/v1/json/2/searchalbum.php?s=daft_punk&a=Homework`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          throw new Error(`Album info fetch failed: HTTP ${resp.status}`);
+        }
+        const data = await resp.json();
+        let foundAlbum = null;
+        if (Array.isArray(data.album)) {
+          foundAlbum = data.album
+            .find(
+              (a) =>
+                (a?.strAlbum?.trim().toLowerCase() === "homework") &&
+                (
+                  (a?.idArtist && String(a.idArtist) === "112024") ||
+                  (a?.strArtist?.trim().toLowerCase() === "daft punk")
+                )
+            );
+        }
+        if (foundAlbum) {
+          setAlbum(foundAlbum);
+        } else {
+          setAlbum(null);
+          setAlbumError("Could not find Daft Punk's Homework album.");
+        }
+      } catch (err) {
+        setAlbum(null);
+        setAlbumError("Failed to load album info.");
+        // eslint-disable-next-line no-console
+        console.error("[LyricLounge] Album fetch exception:", err);
+      } finally {
+        setAlbumLoading(false);
+      }
+    }
+    fetchAlbum();
+    // eslint-disable-next-line
+  }, [selectedArtistId]);
+
   // Fetch artist info and music videos when artist changes
   useEffect(() => {
     // PUBLIC_INTERFACE
