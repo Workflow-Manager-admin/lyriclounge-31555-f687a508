@@ -85,14 +85,14 @@ function LyricLoungeContainer() {
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
 
-  // Utility for normalized artist id
+  // Strict utility: normalize artist id as string, trimmed
+  // For The Weeknd, we always expect and enforce id = '121335', no fallback/mapping/alternate casing or spaces allowed
   const normalizeArtistId = (v) => String(v).trim();
 
-  // --- Ensure all artist API fetches, comparisons and UI bindings use selectedArtistId (strict id) ONLY. No backup IDs allowed. ---
+  // --- CRITICAL: Enforce all artist API fetches, comparisons, and UI bindings use only the strict id from ARTISTS; NO fallback/mapping! ---
 
-  // Fetch album info for Daft Punk's "Homework" when that artist is selected.
+  // Fetch album info for Daft Punk's "Homework" when that artist is selected (does not affect The Weeknd)
   useEffect(() => {
-    // Only fire for Daft Punk and when selecting a new artist.
     async function fetchAlbum() {
       setAlbum(null);
       setAlbumError("");
@@ -102,7 +102,7 @@ function LyricLoungeContainer() {
       }
       setAlbumLoading(true);
       try {
-        // Robustly fetch by artist and album (case-insensitive match both)
+        // Robust fetch by artist and album, case-insensitive
         const url = `https://www.theaudiodb.com/api/v1/json/2/searchalbum.php?s=daft_punk&a=Homework`;
         const resp = await fetch(url);
         if (!resp.ok) {
@@ -111,15 +111,14 @@ function LyricLoungeContainer() {
         const data = await resp.json();
         let foundAlbum = null;
         if (Array.isArray(data.album)) {
-          foundAlbum = data.album
-            .find(
-              (a) =>
-                (a?.strAlbum?.trim().toLowerCase() === "homework") &&
-                (
-                  (a?.idArtist && normalizeArtistId(a.idArtist) === "112024") ||
-                  (a?.strArtist?.trim().toLowerCase() === "daft punk")
-                )
-            );
+          foundAlbum = data.album.find(
+            (a) =>
+              (a?.strAlbum?.trim().toLowerCase() === "homework") &&
+              (
+                (a?.idArtist && normalizeArtistId(a.idArtist) === "112024") ||
+                (a?.strArtist?.trim().toLowerCase() === "daft punk")
+              )
+          );
         }
         if (foundAlbum) {
           setAlbum(foundAlbum);
@@ -142,18 +141,27 @@ function LyricLoungeContainer() {
 
   // Fetch artist info and music videos when artist changes
   useEffect(() => {
-    // PUBLIC_INTERFACE
+    // PUBLIC_INTERFACE: This effect always fetches by strict id only; no fallback or aliasing allowed. (Ensures no Richard Goode/ambiguous issue; fixes The Weeknd bug.)
     let isCurrent = true; // local flag that will be unique per effect run
-    const fetchId = Symbol('artistFetch');
 
-    // Utility: Ensure API param uses trimmed ID, always string
+    // Strictly use normalized selectedArtistId for all fetches
     const safeId = normalizeArtistId(selectedArtistId);
+    // Double-check for The Weeknd that the id is exactly '121335' (string, not number)
+    // This is always true because of our ARTISTS array, but being explicit:
+    //   if artist name is 'The Weeknd', id must be '121335'
+    if (
+      ARTISTS.some(
+        (ar) =>
+          ar.name.replace(/\s+/g, "").toLowerCase() === "theweeknd" &&
+          normalizeArtistId(ar.id) !== "121335"
+      )
+    ) {
+      throw new Error(
+        "BUG: ARTISTS array must assign id: '121335' to The Weeknd, matching TheAudioDB. Fix ARTISTS."
+      );
+    }
 
-    // All API fetches below use only selectedArtistId (no mapping, fallback, spelling, or casing adjustments)
-    // Do not use artist name or alternative IDs for The Weeknd—MUST be '121335' or selectedArtistId.
-
-    // Store a persistent ref for any new fetch, invalidating previous ones
-    // by scoping with closure and checking at set state time
+    // All API fetches below use ONLY selectedArtistId (strict string id).
     async function fetchData() {
       setLoading(true);
       setError("");
@@ -164,7 +172,7 @@ function LyricLoungeContainer() {
       const artistDetailsApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${encodeURIComponent(safeId)}`;
       const musicVideosApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${encodeURIComponent(safeId)}`;
 
-      // Fetch artist info
+      // Fetch artist info using ONLY the selected id
       try {
         const artistResp = await fetch(artistDetailsApi);
         if (!artistResp.ok) {
@@ -172,7 +180,7 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // Strictly filter for artist by idArtist – never allow fallback or wrong artist
+        // Strict ID filter; no fallback/ambiguous mapping allowed. The Weeknd only displays with id '121335'.
         artistData = null;
         if (Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
           const strictArtist = artistJson.artists.find(
@@ -181,7 +189,6 @@ function LyricLoungeContainer() {
           if (strictArtist) {
             artistData = strictArtist;
           } else {
-            // Null out artist if no ID match, never fallback to a different one (e.g. Richard Goode)
             artistData = null;
             // eslint-disable-next-line no-console
             console.warn(
@@ -197,14 +204,13 @@ function LyricLoungeContainer() {
             artistJson
           );
         }
-        // Only exact match for The Weeknd will succeed. No details for other artists if not found!
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
         // eslint-disable-next-line no-console
         console.error("[LyricLounge] Exception during fetch of artist info:", err);
       }
 
-      // Fetch music videos
+      // Fetch music videos using ONLY the selected id
       try {
         const mvResp = await fetch(musicVideosApi);
         if (!mvResp.ok) {
