@@ -48,21 +48,7 @@ function LyricLoungeContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [trackDetails, setTrackDetails] = useState(null); // for enriched track info
-  // Album-related state
-  const [albums, setAlbums] = useState([]);
-  const [albumsLoading, setAlbumsLoading] = useState(false);
-  const [albumError, setAlbumError] = useState("");
-  // Album search state
-  const [albumSearchTerm, setAlbumSearchTerm] = useState("");
-  const [albumSearchLoading, setAlbumSearchLoading] = useState(false);
-  const [albumSearchResult, setAlbumSearchResult] = useState(null);
-  const [albumSearchError, setAlbumSearchError] = useState("");
-
-  // Album details state (for when an album is selected)
-  const [selectedAlbumId, setSelectedAlbumId] = useState(null);
-  const [albumDetails, setAlbumDetails] = useState(null);
-  const [albumDetailsLoading, setAlbumDetailsLoading] = useState(false);
-  const [albumDetailsError, setAlbumDetailsError] = useState("");
+  // (Album state logic removed per instructions)
 
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
