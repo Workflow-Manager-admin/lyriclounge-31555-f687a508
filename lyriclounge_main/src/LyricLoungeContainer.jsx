@@ -25,17 +25,20 @@ function LyricLoungeContainer() {
     {
       id: "112024", // Daft Punk
       name: "Daft Punk",
-      img: "https://www.theaudiodb.com/images/media/artist/thumb/wvxxsq1420551799.jpg"
+      // Known good static Daft Punk image (fallback to Wikimedia if API/broken)
+      img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Daft_Punk_-_press_photo_2005.jpg"
     },
     {
       id: "135088", // Adele
       name: "Adele",
-      img: "https://www.theaudiodb.com/images/media/artist/thumb/vwxyyu1419359185.jpg"
+      // Known good static Adele image (fallback to Wikimedia if API/broken)
+      img: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Adele_2016.jpg"
     },
     {
       id: "112419", // Imagine Dragons
       name: "Imagine Dragons",
-      img: "https://www.theaudiodb.com/images/media/artist/thumb/uytsvw1421930182.jpg"
+      // Known good static Imagine Dragons image (fallback to Wikimedia if API/broken)
+      img: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Imagine_Dragons_Lollapalooza_2014_%28cropped%29.jpg"
     }
   ];
 
