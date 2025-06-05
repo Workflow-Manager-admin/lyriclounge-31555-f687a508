@@ -1,27 +1,46 @@
 import React, { useEffect, useState } from "react";
 
 /**
- * LyricLounge Main Container
+ * LyricLounge Main Container (refactored for multiple artists)
  * Features:
- *  - Search bar (filter music videos as proxy for songs)
- *  - Fetch & display artist info and image (TheAudioDB)
- *  - List and select music videos
- *  - Show lyrics display area (placeholder)
+ *  - Selectable grid/list of artists (hardcoded)
+ *  - On artist select, fetch & display info/image/music videos for chosen artist
+ *  - Music video list and "lyrics" placeholder area
  *  - Modern, music-themed layout, color theme: primary #f0adea, secondary #fbf9f9, accent #100e0e
  */
 
 // PUBLIC_INTERFACE
 function LyricLoungeContainer() {
-  // Constants for APIs and styling
+  // TheAudioDB API key
   const THEAUDIODB_APIKEY = "2";
-  const ARTIST_ID = "112024"; // Coldplay as sample artist
-  const ARTIST_DETAILS_API = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${ARTIST_ID}`;
-  const ARTIST_IMAGE_URL =
-    "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg";
-  // Fix API domain typo (missing "www.") and ensure correct API key
-  const MUSIC_VIDEOS_API = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${ARTIST_ID}`;
+
+  // Demo/hardcoded artists (ID, name, imageURL)
+  // IDs from TheAudioDB documentation/examples
+  const ARTISTS = [
+    {
+      id: "111239", // Coldplay
+      name: "Coldplay",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
+    },
+    {
+      id: "112024", // Daft Punk
+      name: "Daft Punk",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/wvxxsq1420551799.jpg"
+    },
+    {
+      id: "135088", // Adele
+      name: "Adele",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/vwxyyu1419359185.jpg"
+    },
+    {
+      id: "112419", // Imagine Dragons
+      name: "Imagine Dragons",
+      img: "https://www.theaudiodb.com/images/media/artist/thumb/uytsvw1421930182.jpg"
+    }
+  ];
 
   // State
+  const [selectedArtistId, setSelectedArtistId] = useState(ARTISTS[0].id);
   const [artist, setArtist] = useState(null);
   const [musicVideos, setMusicVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -29,7 +48,7 @@ function LyricLoungeContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch artist info and music video list
+  // Fetch artist info and music videos when artist changes
   useEffect(() => {
     // PUBLIC_INTERFACE
     async function fetchData() {
@@ -39,9 +58,12 @@ function LyricLoungeContainer() {
       let musicVideosData = null;
       let loadError = "";
 
+      const artistDetailsApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${selectedArtistId}`;
+      const musicVideosApi = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${selectedArtistId}`;
+
       // Fetch artist info
       try {
-        const artistResp = await fetch(ARTIST_DETAILS_API);
+        const artistResp = await fetch(artistDetailsApi);
         if (!artistResp.ok) {
           throw new Error(`Artist info fetch failed: HTTP ${artistResp.status}`);
         }
@@ -53,13 +75,13 @@ function LyricLoungeContainer() {
 
       // Fetch music videos
       try {
-        const mvResp = await fetch(MUSIC_VIDEOS_API);
+        const mvResp = await fetch(musicVideosApi);
         if (!mvResp.ok) {
           throw new Error(`Music video fetch failed: HTTP ${mvResp.status}`);
         }
         const mvJson = await mvResp.json();
 
-        // Defensive: API may have property "mvid" (array), not "mvids"
+        // Defensive: API sometimes returns "mvids" or "mvid"
         let vidsKey = "mvids";
         let arrayVal = mvJson?.[vidsKey];
         if (!arrayVal && "mvid" in mvJson) {
@@ -69,29 +91,40 @@ function LyricLoungeContainer() {
 
         let rawMvs = Array.isArray(arrayVal) ? arrayVal : [];
 
-        // Error/debug reporting: Clearly indicate if API shape is unexpected or empty
-        if (!arrayVal && (!mvJson || typeof mvJson !== "object" || Object.keys(mvJson).length === 0)) {
-          // Entire response is empty/null/blank object: likely API/endpoint problem
-          loadError += (loadError ? " " : "") + "No music video data found for this artist (empty API response).";
+        // Error/debug reporting
+        if (
+          !arrayVal &&
+          (!mvJson || typeof mvJson !== "object" || Object.keys(mvJson).length === 0)
+        ) {
+          loadError +=
+            (loadError ? " " : "") +
+            "No music video data found for this artist (empty API response).";
           // eslint-disable-next-line no-console
           console.error("LyricLounge DEBUG: Music video API returned empty or invalid response:", mvJson);
         } else if (!rawMvs.length) {
-          // Array is empty but there is a structured response object
+          // Array is empty
           if (Object.keys(mvJson || {}).length > 0) {
-            loadError += (loadError ? " " : "") +
+            loadError +=
+              (loadError ? " " : "") +
               "No music videos found in the database for this artist.";
             // eslint-disable-next-line no-console
-            console.error("LyricLounge DEBUG: No music videos array found for key", vidsKey, "Full music video API response:", mvJson);
+            console.error(
+              "LyricLounge DEBUG: No music videos array found for key",
+              vidsKey,
+              "Full music video API response:",
+              mvJson
+            );
           }
-        } else if ((arrayVal && !Array.isArray(arrayVal))) {
-          loadError += (loadError ? " " : "") +
-            "Unexpected music video API response structure.";
+        } else if (arrayVal && !Array.isArray(arrayVal)) {
+          loadError += (loadError ? " " : "") + "Unexpected music video API response structure.";
           // eslint-disable-next-line no-console
           console.error("LyricLounge DEBUG: Music video data is present but not an array. Raw response:", mvJson);
         }
         musicVideosData = rawMvs;
       } catch (err) {
-        loadError += (loadError ? " " : "") + "Sorry, failed to load music videos. [Network/API error]";
+        loadError +=
+          (loadError ? " " : "") +
+          "Sorry, failed to load music videos. [Network/API error]";
         // eslint-disable-next-line no-console
         console.error("Music video fetch error", err);
       }
@@ -111,7 +144,7 @@ function LyricLoungeContainer() {
 
     fetchData();
     // eslint-disable-next-line
-  }, []);
+  }, [selectedArtistId]);
 
   // Filter music videos by search term
   const filteredVideos = musicVideos.filter((vid) => {
@@ -142,8 +175,15 @@ function LyricLoungeContainer() {
     </svg>
   );
 
+  // Get artist thumb image based on current selection (API image sometimes missing/corrupt)
+  const currentArtistPic =
+    ARTISTS.find((ar) => ar.id === selectedArtistId)?.img ||
+    artist?.strArtistThumb ||
+    "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+
   return (
-    <div className="ll-main"
+    <div
+      className="ll-main"
       style={{
         fontFamily: "'Inter','Roboto','Helvetica',sans-serif",
         minHeight: "100vh",
@@ -151,7 +191,8 @@ function LyricLoungeContainer() {
         color: "#100e0e",
         paddingBottom: 32,
         boxSizing: "border-box"
-      }}>
+      }}
+    >
       {/* Header/Nav */}
       <nav
         style={{
@@ -163,21 +204,27 @@ function LyricLoungeContainer() {
           zIndex: 10
         }}
       >
-        <div className="ll-container" style={{
-          maxWidth: 990,
-          margin: "0 auto",
-          padding: "0 20px",
-          display: "flex",
-          alignItems: "center"
-        }}>
-          <div className="ll-logo" style={{
+        <div
+          className="ll-container"
+          style={{
+            maxWidth: 990,
+            margin: "0 auto",
+            padding: "0 20px",
             display: "flex",
-            alignItems: "center",
-            fontWeight: 700,
-            fontSize: "1.4rem",
-            color: "#100e0e",
-            letterSpacing: "-1px"
-          }}>
+            alignItems: "center"
+          }}
+        >
+          <div
+            className="ll-logo"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontWeight: 700,
+              fontSize: "1.4rem",
+              color: "#100e0e",
+              letterSpacing: "-1px"
+            }}
+          >
             <MusicIcon />
             LyricLounge
           </div>
