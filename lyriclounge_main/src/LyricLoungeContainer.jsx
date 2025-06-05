@@ -482,18 +482,46 @@ function LyricLoungeContainer() {
                   boxShadow: "0 2px 20px 0 #f0adea33"
                 }}
                 onError={e => {
-                  // Fallback to generic only if not already at default; prevents infinite loop
+                  // Fallback order: static fallback (for target artists) -> ARTISTS imgs -> placeholder
+                  const artistId = selectedArtistId;
+                  const triedSrc = e.target && e.target.src;
+
+                  // 1. Try robust static for key artists
                   if (
-                    e.target &&
-                    e.target.src !== "https://www.theaudiodb.com/images/media/artist/thumb/default.png"
+                    ARTIST_STATIC_FALLBACKS[artistId] &&
+                    triedSrc !== ARTIST_STATIC_FALLBACKS[artistId]
                   ) {
-                    // Log a warning for developers in console
+                    e.target.src = ARTIST_STATIC_FALLBACKS[artistId];
                     // eslint-disable-next-line no-console
                     console.warn(
-                      `Artist image failed to load for '${artist?.strArtist || selectedArtistId}': `,
-                      e.target.src
+                      `Artist image for '${artist?.strArtist || artistId}' failed; falling back to static: `,
+                      ARTIST_STATIC_FALLBACKS[artistId]
                     );
-                    e.target.src = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+                    return;
+                  }
+                  // 2. Try ARTISTS array image if not yet used
+                  const arrObj = ARTISTS.find(ar => ar.id === artistId);
+                  if (
+                    arrObj &&
+                    arrObj.img &&
+                    arrObj.img !== triedSrc
+                  ) {
+                    e.target.src = arrObj.img;
+                    // eslint-disable-next-line no-console
+                    console.warn(
+                      `Artist image for '${artist?.strArtist || artistId}' failed; falling back to ARTISTS array img: `,
+                      arrObj.img
+                    );
+                    return;
+                  }
+                  // 3. Last-resort placeholder if above fail
+                  if (triedSrc !== PLACEHOLDER_IMG) {
+                    e.target.src = PLACEHOLDER_IMG;
+                    // eslint-disable-next-line no-console
+                    console.warn(
+                      `Artist image for '${artist?.strArtist || artistId}' failed again; showing placeholder.`,
+                      PLACEHOLDER_IMG
+                    );
                   }
                 }}
               />
