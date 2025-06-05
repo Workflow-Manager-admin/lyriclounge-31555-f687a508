@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/lyriclounge-31555-f687a508/lyriclounge_main"
+}
