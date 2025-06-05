@@ -473,66 +473,90 @@ function LyricLoungeContainer() {
 
           {/* Song (Music Video) Selection List */}
           <div>
-            <div style={{
-              fontWeight: 700,
-              fontSize: "1.2rem",
-              color: "#f0adea",
-              marginBottom: 13,
-              letterSpacing: 0,
-              textTransform: "uppercase"
-            }}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: "1.2rem",
+                color: "#f0adea",
+                marginBottom: 13,
+                letterSpacing: 0,
+                textTransform: "uppercase"
+              }}
+            >
               Select a Song / Music Video
             </div>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-              gap: 22,
-              minHeight: 42
-            }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                gap: 22,
+                minHeight: 42
+              }}
+            >
               {loading ? (
-                <div style={{ color: "#100e0e9a", gridColumn: "1/-1" }}>Loading songs…</div>
+                <div style={{ color: "#100e0e9a", gridColumn: "1/-1" }}>
+                  Loading songs…
+                </div>
               ) : error && musicVideos.length === 0 ? (
                 <div style={{ color: "#fa3a62", gridColumn: "1/-1" }}>
-                  {error.includes("music videos")
-                    ? <>
-                        Sorry, failed to load music videos. Try reloading the page.<br />
-                        <span style={{ fontSize: "0.95em", color: "#bb2144", fontWeight: 400 }}>
-                          (See browser console for technical error details.)
-                        </span>
-                      </>
-                    : error}
+                  {error.includes("music videos") ? (
+                    <>
+                      Sorry, failed to load music videos. Try reloading the page.<br />
+                      <span
+                        style={{
+                          fontSize: "0.95em",
+                          color: "#bb2144",
+                          fontWeight: 400
+                        }}
+                      >
+                        (See browser console for technical error details.)
+                      </span>
+                    </>
+                  ) : (
+                    error
+                  )}
                 </div>
               ) : filteredVideos.length === 0 ? (
-                <div style={{ color: "#100e0e99", gridColumn: "1/-1" }}>No results found.</div>
+                <div style={{ color: "#100e0e99", gridColumn: "1/-1" }}>
+                  No results found.
+                </div>
               ) : (
                 filteredVideos.map((video) => (
                   <button
                     key={video.idTrack}
                     onClick={() => handleVideoSelect(video)}
                     style={{
-                      background: selectedVideo?.idTrack === video.idTrack
-                        ? "linear-gradient(100deg,#f0adea33,#f0adea88 90%)"
-                        : "#fff",
-                      border: selectedVideo?.idTrack === video.idTrack
-                        ? "2.6px solid #f0adea"
-                        : "2px solid #ded3d6",
+                      background:
+                        selectedVideo?.idTrack === video.idTrack
+                          ? "linear-gradient(100deg,#f0adea33,#f0adea88 90%)"
+                          : "#fff",
+                      border:
+                        selectedVideo?.idTrack === video.idTrack
+                          ? "2.6px solid #f0adea"
+                          : "2px solid #ded3d6",
                       borderRadius: 13,
                       padding: 0,
                       cursor: "pointer",
                       outline: "none",
-                      boxShadow: selectedVideo?.idTrack === video.idTrack
-                        ? "0 4px 18px 0 #f0adea28"
-                        : "0 2px 10px #100e0e06",
+                      boxShadow:
+                        selectedVideo?.idTrack === video.idTrack
+                          ? "0 4px 18px 0 #f0adea28"
+                          : "0 2px 10px #100e0e06",
                       overflow: "hidden",
                       display: "flex",
                       flexDirection: "column",
-                      transition: "border 0.15s, box-shadow 0.18s, background 0.15s",
-                      marginBottom: 2,
+                      transition:
+                        "border 0.15s, box-shadow 0.18s, background 0.15s",
+                      marginBottom: 2
                     }}
                     aria-label={`Select ${video.strTrack}`}
                   >
                     <img
-                      src={video.strTrackThumb || video.strTrack3dCase || ARTIST_IMAGE_URL}
+                      src={
+                        video.strTrackThumb ||
+                        video.strTrack3dCase ||
+                        currentArtistPic
+                      }
                       alt={video.strTrack}
                       style={{
                         width: "100%",
@@ -543,36 +567,52 @@ function LyricLoungeContainer() {
                         background: "#f0adea13"
                       }}
                     />
-                    <div style={{ padding: "12px 13px 13px 13px", textAlign: "left", width: "100%" }}>
-                      <div style={{
-                        fontWeight: 600,
-                        fontSize: "1.08em",
-                        color: "#100e0e"
-                      }}>{video.strTrack}</div>
+                    <div
+                      style={{
+                        padding: "12px 13px 13px 13px",
+                        textAlign: "left",
+                        width: "100%"
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          fontSize: "1.08em",
+                          color: "#100e0e"
+                        }}
+                      >
+                        {video.strTrack}
+                      </div>
                       {video.intYearReleased && (
-                        <div style={{
-                          color: "#f0adea",
-                          fontSize: "0.98em",
-                          fontWeight: 500,
-                          marginBottom: 2
-                        }}>
+                        <div
+                          style={{
+                            color: "#f0adea",
+                            fontSize: "0.98em",
+                            fontWeight: 500,
+                            marginBottom: 2
+                          }}
+                        >
                           {video.intYearReleased}
                         </div>
                       )}
                       {video.strAlbum && (
-                        <div style={{
-                          color: "#6a447a",
-                          fontSize: "0.97em",
-                        }}>
+                        <div
+                          style={{
+                            color: "#6a447a",
+                            fontSize: "0.97em"
+                          }}
+                        >
                           {video.strAlbum}
                         </div>
                       )}
                       {video.strDescriptionEN && (
-                        <div style={{
-                          fontSize: "0.89em",
-                          color: "#100e0e99",
-                          marginTop: 6
-                        }}>
+                        <div
+                          style={{
+                            fontSize: "0.89em",
+                            color: "#100e0e99",
+                            marginTop: 6
+                          }}
+                        >
                           {video.strDescriptionEN.substring(0, 68)}
                           {video.strDescriptionEN.length > 68 ? "…" : ""}
                         </div>
@@ -586,49 +626,66 @@ function LyricLoungeContainer() {
         </section>
 
         {/* Lyrics Display Area */}
-        <section style={{
-          margin: "34px auto 0 auto",
-          maxWidth: 900,
-          padding: "18px 22px",
-          background: "#f0adea11",
-          borderRadius: 18,
-          minHeight: 154
-        }}>
-          <div style={{
-            marginBottom: 16,
-            fontWeight: 700,
-            fontSize: "1.13rem",
-            color: "#f0adea",
-            display: "flex",
-            alignItems: "center",
-          }}>
-            <span role="img" aria-label="Lyrics" style={{ fontSize: 21, marginRight: 9 }}>📝</span>
+        <section
+          style={{
+            margin: "34px auto 0 auto",
+            maxWidth: 900,
+            padding: "18px 22px",
+            background: "#f0adea11",
+            borderRadius: 18,
+            minHeight: 154
+          }}
+        >
+          <div
+            style={{
+              marginBottom: 16,
+              fontWeight: 700,
+              fontSize: "1.13rem",
+              color: "#f0adea",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span
+              role="img"
+              aria-label="Lyrics"
+              style={{ fontSize: 21, marginRight: 9 }}
+            >
+              📝
+            </span>
             Lyrics
           </div>
-          <div style={{
-            fontFamily: "monospace, 'Menlo', 'Courier New', monospace",
-            fontSize: "1.15rem",
-            background: "#fff",
-            color: "#100e0e",
-            minHeight: 80,
-            borderRadius: 9,
-            padding: "20px 20px 19px 20px",
-            boxShadow: "0 1.5px 10px 0 #f0adea12",
-            letterSpacing: "0.03em",
-            wordBreak: "break-word"
-          }}>
-            {
-              !selectedVideo
-                ? "Please select a song to view its lyrics."
-                : <span style={{ color: "#c26293" }}>[Lyrics Placeholder]</span>
-            }
+          <div
+            style={{
+              fontFamily: "monospace, 'Menlo', 'Courier New', monospace",
+              fontSize: "1.15rem",
+              background: "#fff",
+              color: "#100e0e",
+              minHeight: 80,
+              borderRadius: 9,
+              padding: "20px 20px 19px 20px",
+              boxShadow: "0 1.5px 10px 0 #f0adea12",
+              letterSpacing: "0.03em",
+              wordBreak: "break-word"
+            }}
+          >
+            {!selectedVideo
+              ? "Please select a song to view its lyrics."
+              : (
+                <span style={{ color: "#c26293" }}>
+                  [Lyrics Placeholder]
+                </span>
+              )}
             {/* You can integrate lyrics-fetching API here in the future. */}
           </div>
           {/* Bonus: Link to the music video */}
           {selectedVideo && (
             <div style={{ marginTop: 13 }}>
               <a
-                href={selectedVideo.strMusicVid || selectedVideo.strYoutube}
+                href={
+                  selectedVideo.strMusicVid ||
+                  selectedVideo.strYoutube
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
