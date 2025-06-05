@@ -733,7 +733,7 @@ function LyricLoungeContainer() {
           </div>
         </section>
 
-        {/* Lyrics Display Area */}
+        {/* Lyrics/Track Details Area */}
         <section
           style={{
             margin: "34px auto 0 auto",
@@ -761,31 +761,88 @@ function LyricLoungeContainer() {
             >
               📝
             </span>
-            Lyrics
+            Lyrics & Track Details
           </div>
+          {/* [Start] Track details logic */}
           <div
             style={{
               fontFamily: "monospace, 'Menlo', 'Courier New', monospace",
-              fontSize: "1.15rem",
+              fontSize: "1.12rem",
               background: "#fff",
               color: "#100e0e",
               minHeight: 80,
               borderRadius: 9,
               padding: "20px 20px 19px 20px",
               boxShadow: "0 1.5px 10px 0 #f0adea12",
-              letterSpacing: "0.03em",
+              letterSpacing: "0.02em",
               wordBreak: "break-word"
             }}
           >
-            {!selectedVideo
-              ? "Please select a song to view its lyrics."
-              : (
-                <span style={{ color: "#c26293" }}>
-                  [Lyrics Placeholder]
-                </span>
-              )}
-            {/* You can integrate lyrics-fetching API here in the future. */}
+            {!selectedVideo ? (
+              "Please select a song to view its lyrics and details."
+            ) : trackDetails === null ? (
+              <span style={{ color: "#c26293" }}>
+                { /* If no details or details loading, provide fallback/loader */ }
+                Loading lyrics and details...
+              </span>
+            ) : trackDetails ? (
+              <div>
+                {/* Show Title and basic info */}
+                <div style={{
+                  color: "#ea41c3",
+                  fontWeight: 700,
+                  fontSize: "1.22em",
+                  marginBottom: 6,
+                  fontFamily: "inherit"
+                }}>{trackDetails.strTrack || selectedVideo.strTrack}</div>
+                
+                <div style={{
+                  fontSize: "1em", marginBottom: 10, color: "#6f2361", fontWeight: 500
+                }}>
+                  {trackDetails.strAlbum ? (
+                    <>
+                      <span style={{
+                        padding: "2.5px 7px", background: "#f0adea33",
+                        borderRadius: 5, color: "#902e77", marginRight: 11
+                      }}>
+                        Album: <b>{trackDetails.strAlbum}</b>
+                      </span>
+                    </>
+                  ) : null}
+                  {trackDetails.intYearReleased && (
+                    <span style={{ marginLeft: 5 }}>
+                      Year: {trackDetails.intYearReleased}
+                    </span>
+                  )}
+                </div>
+                {/* [Optional] Genre, Duration, etc */}
+                <div style={{marginBottom:7, fontSize: ".96em", color: "#a9577c"}}>
+                  {trackDetails.strGenre && <span>Genre: {trackDetails.strGenre}</span>}
+                  {trackDetails.intDuration && (
+                    <span style={{marginLeft:9}}>
+                      {Math.round(Number(trackDetails.intDuration||0) / 1000)}s
+                    </span>
+                  )}
+                </div>
+                {/* Lyrics */}
+                <div style={{
+                  color: "#100e0e", fontWeight: 500, fontSize: "1.13em", margin: "10px 0 0 0", whiteSpace: "pre-line"
+                }}>
+                  {trackDetails.strLyrics ?
+                    trackDetails.strLyrics :
+                    <span style={{ color: "#ce7ea8" }}>
+                      Lyrics not found for this track.
+                    </span>
+                  }
+                </div>
+              </div>
+            ) : (
+              <span style={{ color: "#ce7ea8" }}>
+                No track details available.
+              </span>
+            )}
           </div>
+          {/* [End] Track details logic */}
           {/* Bonus: Link to the music video */}
           {selectedVideo && (
             <div style={{ marginTop: 13 }}>
