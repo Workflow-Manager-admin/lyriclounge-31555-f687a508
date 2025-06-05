@@ -161,19 +161,20 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // --- REFACTOR: Strictly filter for correct artist by idArtist, use .find, log warning if not found ---
+        // Strictly filter for artist by idArtist – never allow fallback or wrong artist
+        artistData = null;
         if (Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
-          const thisArtist = artistJson.artists.find(
+          const strictArtist = artistJson.artists.find(
             (a) => String(a.idArtist) === String(selectedArtistId)
           );
-          if (thisArtist) {
-            artistData = thisArtist;
+          if (strictArtist) {
+            artistData = strictArtist;
           } else {
+            // Null out artist if no ID match, never fallback to a different one (e.g. Richard Goode)
             artistData = null;
-            // Log a warning if no artist with matching idArtist is found
             // eslint-disable-next-line no-console
             console.warn(
-              `[LyricLounge] No artist object with idArtist === \`${selectedArtistId}\` found in API response. Full response:`,
+              `[LyricLounge] No artist found with idArtist === '${selectedArtistId}' in TheAudioDB API response, artists array:`,
               artistJson.artists
             );
           }
@@ -181,14 +182,13 @@ function LyricLoungeContainer() {
           artistData = null;
           // eslint-disable-next-line no-console
           console.warn(
-            `[LyricLounge] Artist API response did not contain a valid 'artists' array. Full response:`,
+            `[LyricLounge] Artist API response did not contain a valid 'artists' array (API issue or bad ID?):`,
             artistJson
           );
         }
-        // This ensures The Weeknd and any artist match by id, not by order or fallback.
+        // Only exact match for The Weeknd will succeed. No details for other artists if not found!
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
-        // Optionally: log technical error for debugging
         // eslint-disable-next-line no-console
         console.error("[LyricLounge] Exception during fetch of artist info:", err);
       }
