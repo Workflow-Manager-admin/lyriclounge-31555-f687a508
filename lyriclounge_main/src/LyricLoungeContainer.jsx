@@ -9,7 +9,17 @@ import React, { useEffect, useState } from "react";
  *  - Modern, music-themed layout, color theme: primary #f0adea, secondary #fbf9f9, accent #100e0e
  */
 
-// PUBLIC_INTERFACE
+/**
+ * LyricLounge Main Container (refactored for multiple artists and robust album info filtering)
+ * Features:
+ *  - Selectable grid/list of artists (hardcoded)
+ *  - On artist select, fetch & display info/image/music videos for chosen artist
+ *  - Music video list and "lyrics" placeholder area
+ *  - Modern, music-themed layout, color theme: primary #f0adea, secondary #fbf9f9, accent #100e0e
+ *  - Enhanced: When Daft Punk is selected and 'Homework' album is searched, fetch album robustly by artist+album
+ */
+
+ // PUBLIC_INTERFACE
 function LyricLoungeContainer() {
   // TheAudioDB API key
   const THEAUDIODB_APIKEY = "2";
