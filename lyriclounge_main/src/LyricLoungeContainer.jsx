@@ -346,8 +346,8 @@ function LyricLoungeContainer() {
     if (arObj && arObj.img && arObj.img.trim() !== "") {
       return arObj.img;
     }
-    // 4. Placeholder
-    return PLACEHOLDER_IMG;
+    // 4. Always use the new specified fallback
+    return FALLBACK_ARTIST_IMG;
   };
   const currentArtistPic = getValidArtistImage();
 
