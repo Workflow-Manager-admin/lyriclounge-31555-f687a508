@@ -44,7 +44,7 @@ function LyricLoungeContainer() {
       img: "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg"
     },
     {
-      id: "121335", // The Weeknd with enforced correct ID from TheAudioDB (no aliases, fallback, or ambiguous mapping!)
+      id: "121335", // The Weeknd — strictly correct TheAudioDB ID
       name: "The Weeknd",
       img: "https://www.theaudiodb.com/images/media/artist/thumb/uxxyuv1429914500.jpg"
     },
@@ -88,6 +88,9 @@ function LyricLoungeContainer() {
   // Strict utility: normalize artist id as string, trimmed
   // For The Weeknd, we always expect and enforce id = '121335', no fallback/mapping/alternate casing or spaces allowed
   const normalizeArtistId = (v) => String(v).trim();
+
+  // In all critical places, use only the value '121335' for The Weeknd (no number or any other version).
+  // Reiterate here for clarity: all API fetches, object lookups, and UI selection for The Weeknd strictly use '121335'.
 
   // --- CRITICAL: Enforce all artist API fetches, comparisons, and UI bindings use only the strict id from ARTISTS; NO fallback/mapping! ---
 
