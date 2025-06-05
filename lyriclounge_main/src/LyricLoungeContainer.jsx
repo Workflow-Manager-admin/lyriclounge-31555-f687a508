@@ -14,6 +14,14 @@ function LyricLoungeContainer() {
   // TheAudioDB API key
   const THEAUDIODB_APIKEY = "2";
 
+  // Fallback/placeholder image
+  const PLACEHOLDER_IMG = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+  const ARTIST_STATIC_FALLBACKS = {
+    "112024": "https://upload.wikimedia.org/wikipedia/commons/2/23/Daft_Punk_-_press_photo_2005.jpg", // Daft Punk
+    "135088": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Adele_2016.jpg", // Adele
+    "112419": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Imagine_Dragons_Lollapalooza_2014_%28cropped%29.jpg" // Imagine Dragons
+  };
+
   // Demo/hardcoded artists (ID, name, imageURL)
   // IDs from TheAudioDB documentation/examples
   const ARTISTS = [
@@ -25,20 +33,17 @@ function LyricLoungeContainer() {
     {
       id: "112024", // Daft Punk
       name: "Daft Punk",
-      // Known good static Daft Punk image (fallback to Wikimedia if API/broken)
-      img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Daft_Punk_-_press_photo_2005.jpg"
+      img: ARTIST_STATIC_FALLBACKS["112024"]
     },
     {
       id: "135088", // Adele
       name: "Adele",
-      // Known good static Adele image (fallback to Wikimedia if API/broken)
-      img: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Adele_2016.jpg"
+      img: ARTIST_STATIC_FALLBACKS["135088"]
     },
     {
       id: "112419", // Imagine Dragons
       name: "Imagine Dragons",
-      // Known good static Imagine Dragons image (fallback to Wikimedia if API/broken)
-      img: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Imagine_Dragons_Lollapalooza_2014_%28cropped%29.jpg"
+      img: ARTIST_STATIC_FALLBACKS["112419"]
     }
   ];
 
@@ -51,11 +56,10 @@ function LyricLoungeContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [trackDetails, setTrackDetails] = useState(null); // for enriched track info
-  // (Album state logic removed per instructions)
 
   // Image error state for the artist selection grid
   const [artistGridImgError, setArtistGridImgError] = useState({});
-  
+
   // Fetch artist info and music videos when artist changes
   useEffect(() => {
     // PUBLIC_INTERFACE
@@ -99,7 +103,6 @@ function LyricLoungeContainer() {
 
         let rawMvs = Array.isArray(arrayVal) ? arrayVal : [];
 
-        // Error/debug reporting
         if (
           !arrayVal &&
           (!mvJson || typeof mvJson !== "object" || Object.keys(mvJson).length === 0)
@@ -110,7 +113,6 @@ function LyricLoungeContainer() {
           // eslint-disable-next-line no-console
           console.error("LyricLounge DEBUG: Music video API returned empty or invalid response:", mvJson);
         } else if (!rawMvs.length) {
-          // Array is empty
           if (Object.keys(mvJson || {}).length > 0) {
             loadError +=
               (loadError ? " " : "") +
@@ -139,13 +141,12 @@ function LyricLoungeContainer() {
 
       setArtist(artistData);
       setMusicVideos(musicVideosData || []);
-      // Select the first available music video, or clear if none.
       if (musicVideosData && musicVideosData.length > 0) {
         setSelectedVideo(musicVideosData[0]);
       } else {
         setSelectedVideo(null);
       }
-      setTrackDetails(null); // clear last track enrichment on artist change
+      setTrackDetails(null);
       setError(loadError);
       setLoading(false);
     }
@@ -154,17 +155,15 @@ function LyricLoungeContainer() {
     // eslint-disable-next-line
   }, [selectedArtistId]);
 
-  // (Album fetching and search logic removed per instructions)
-  // Fetch full track details whenever the selected video/track changes
+  // Fetch track details when the selected video/track changes
   useEffect(() => {
-    // Only fetch if a track is selected
     async function fetchTrackDetails() {
       if (!selectedVideo || !selectedVideo.idTrack) {
         setTrackDetails(null);
         return;
       }
       // PUBLIC_INTERFACE: Fetches detailed track info (including lyrics)
-      setTrackDetails(null); // show loading state if needed
+      setTrackDetails(null);
       try {
         const resp = await fetch(`https://www.theaudiodb.com/api/v1/json/2/track.php?m=${selectedVideo.idTrack}`);
         if (!resp.ok) {
@@ -214,36 +213,22 @@ function LyricLoungeContainer() {
     </svg>
   );
 
-  // Fully robust fallback for artist image (hard fallback for Daft Punk, Adele, Imagine Dragons)
-  // 1. Use the API image if valid and loadable
-  // 2. If API img is missing/broken, use robust known-good static from ARTISTS
-  // 3. If that fails, use a generic placeholder
-  const PLACEHOLDER_IMG =
-    "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
-
-  // URLs for guaranteed-fallback for specific artists
-  const ARTIST_STATIC_FALLBACKS = {
-    "112024": "https://upload.wikimedia.org/wikipedia/commons/2/23/Daft_Punk_-_press_photo_2005.jpg", // Daft Punk
-    "135088": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Adele_2016.jpg", // Adele
-    "112419": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Imagine_Dragons_Lollapalooza_2014_%28cropped%29.jpg" // Imagine Dragons
-  };
-
-  // Tries up to three layers of fallback for the artist profile image
+  // Robust fallback for artist image (profile area)
   const getValidArtistImage = () => {
-    // 1. Prefer live API if available and not empty string
+    // 1. Use API img if present and not empty
     if (artist?.strArtistThumb && artist.strArtistThumb.trim() !== "") {
       return artist.strArtistThumb;
     }
-    // 2. Hard fallback for these three artists
+    // 2. Hard fallback for these three key artists
     if (ARTIST_STATIC_FALLBACKS[selectedArtistId]) {
       return ARTIST_STATIC_FALLBACKS[selectedArtistId];
     }
-    // 3. Fallback: use as configured in the ARTISTS array for all other cases
+    // 3. ARTISTS array
     const arObj = ARTISTS.find((ar) => ar.id === selectedArtistId);
     if (arObj && arObj.img && arObj.img.trim() !== "") {
       return arObj.img;
     }
-    // 4. Generic placeholder as last resort
+    // 4. Placeholder
     return PLACEHOLDER_IMG;
   };
   const currentArtistPic = getValidArtistImage();
@@ -329,10 +314,14 @@ function LyricLoungeContainer() {
             }}
           >
             {ARTISTS.map((ar) => {
-              // Determine which image to show for each artist "card" in the grid.
-              // Use live API thumb for the currently selected artist if it is available
-              // Otherwise use the static image, or fallback to generic
-              const baseFallback = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+              // Robust fallback chain for grid
+              const baseFallback = PLACEHOLDER_IMG;
+              function gridArtistFallbackUrl() {
+                if (ARTIST_STATIC_FALLBACKS[ar.id]) {
+                  return ARTIST_STATIC_FALLBACKS[ar.id];
+                }
+                return baseFallback;
+              }
               let thumb;
               if (
                 artist &&
@@ -346,17 +335,11 @@ function LyricLoungeContainer() {
               } else {
                 thumb = baseFallback;
               }
-
-              // Use error override if state for this artist is set
               const errorKey = ar.id;
-              const finalThumb = artistGridImgError[errorKey] ? baseFallback : thumb;
-              // Handler to set fallback image (avoiding infinite loop)
+              const finalThumb = artistGridImgError[errorKey] ? gridArtistFallbackUrl() : thumb;
+              // Robust handler to avoid infinite loops, covers all priority logic
               const handleImgError = (e) => {
-                if (
-                  e.target &&
-                  e.target.src !== baseFallback &&
-                  !artistGridImgError[errorKey] // avoid set loop
-                ) {
+                if (e.target && !artistGridImgError[errorKey]) {
                   // eslint-disable-next-line no-console
                   console.warn(
                     `Artist grid image failed to load for '${ar.name}': `,
@@ -366,8 +349,13 @@ function LyricLoungeContainer() {
                     ...prev,
                     [errorKey]: true
                   }));
-                  // fallback immediately for user
-                  e.target.src = baseFallback;
+                  const fallbackUrl = gridArtistFallbackUrl();
+                  if (e.target.src !== fallbackUrl) {
+                    e.target.src = fallbackUrl;
+                  } else if (fallbackUrl !== baseFallback) {
+                    // If static fallback fails, force baseFallback as absolute last resort
+                    e.target.src = baseFallback;
+                  }
                 }
               };
 
@@ -485,7 +473,6 @@ function LyricLoungeContainer() {
                   // Fallback order: static fallback (for target artists) -> ARTISTS imgs -> placeholder
                   const artistId = selectedArtistId;
                   const triedSrc = e.target && e.target.src;
-
                   // 1. Try robust static for key artists
                   if (
                     ARTIST_STATIC_FALLBACKS[artistId] &&
@@ -831,8 +818,7 @@ function LyricLoungeContainer() {
               "Please select a song to view its lyrics and details."
             ) : trackDetails === null ? (
               <span style={{ color: "#c26293" }}>
-                { /* If no details or details loading, provide fallback/loader */ }
-                Loading lyrics and details...
+                {"Loading lyrics and details..."}
               </span>
             ) : trackDetails ? (
               <div>
@@ -925,4 +911,3 @@ function LyricLoungeContainer() {
 }
 
 export default LyricLoungeContainer;
-
