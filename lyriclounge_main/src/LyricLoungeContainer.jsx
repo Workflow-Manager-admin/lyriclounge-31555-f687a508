@@ -513,7 +513,8 @@ function LyricLoungeContainer() {
                   // Fallback order: static fallback (for target artists) -> ARTISTS imgs -> placeholder
                   const artistId = selectedArtistId;
                   const triedSrc = e.target && e.target.src;
-                  // 1. Try robust static for key artists
+
+                  // Only run fallback logic if no match for the assigned artist
                   if (
                     ARTIST_STATIC_FALLBACKS[artistId] &&
                     triedSrc !== ARTIST_STATIC_FALLBACKS[artistId]
@@ -526,7 +527,7 @@ function LyricLoungeContainer() {
                     );
                     return;
                   }
-                  // 2. Try ARTISTS array image if not yet used
+                  // 2. Try ARTISTS array image for a non-ambiguous fallback
                   const arrObj = ARTISTS.find(ar => ar.id === artistId);
                   if (
                     arrObj &&
