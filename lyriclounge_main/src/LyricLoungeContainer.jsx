@@ -670,8 +670,7 @@ function LyricLoungeContainer() {
                         background: "#f0adea17"
                       }}
                     />
-                    <div style={{ padding: "9px 8px 10px 8px", width: "100%">
-                    }}>
+                    <div style={{ padding: "9px 8px 10px 8px", width: "100%" }}>
                       <div style={{
                         fontWeight: 700,
                         fontSize: "1.08em",
