@@ -249,8 +249,14 @@ function LyricLoungeContainer() {
 
   // Robust fallback for artist image (profile area)
   const getValidArtistImage = () => {
-    // 1. Use API img if present and not empty
-    if (artist?.strArtistThumb && artist.strArtistThumb.trim() !== "") {
+    // 1. Use API img if present, not empty, and matches selected artist
+    if (
+      artist &&
+      artist?.idArtist &&
+      String(artist.idArtist) === String(selectedArtistId) &&
+      artist?.strArtistThumb &&
+      artist.strArtistThumb.trim() !== ""
+    ) {
       return artist.strArtistThumb;
     }
     // 2. Hard fallback for these three key artists
