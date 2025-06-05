@@ -152,13 +152,10 @@ function LyricLoungeContainer() {
     // Double-check for The Weeknd that the id is exactly '121335' (string, not number)
     // This is always true because of our ARTISTS array, but being explicit:
     //   if artist name is 'The Weeknd', id must be '121335'
-    if (
-      ARTISTS.some(
-        (ar) =>
-          ar.name.replace(/\s+/g, "").toLowerCase() === "theweeknd" &&
-          normalizeArtistId(ar.id) !== "121335"
-      )
-    ) {
+    const weekndArtist = ARTISTS.find(
+      (ar) => ar.name && ar.name.replace(/\s+/g, "").toLowerCase() === "theweeknd"
+    );
+    if (!weekndArtist || normalizeArtistId(weekndArtist.id) !== "121335") {
       throw new Error(
         "BUG: ARTISTS array must assign id: '121335' to The Weeknd, matching TheAudioDB. Fix ARTISTS."
       );
