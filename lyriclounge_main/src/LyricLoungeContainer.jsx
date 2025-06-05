@@ -18,7 +18,8 @@ function LyricLoungeContainer() {
   const ARTIST_DETAILS_API = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/artist.php?i=${ARTIST_ID}`;
   const ARTIST_IMAGE_URL =
     "https://www.theaudiodb.com/images/media/artist/thumb/xxtwus1340291734.jpg";
-  const MUSIC_VIDEOS_API = `https://theaudiodb.com/api/v1/json/2/mvid.php?i=${ARTIST_ID}`;
+  // Fix API domain typo (missing "www.") and ensure correct API key
+  const MUSIC_VIDEOS_API = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/mvid.php?i=${ARTIST_ID}`;
 
   // State
   const [artist, setArtist] = useState(null);
