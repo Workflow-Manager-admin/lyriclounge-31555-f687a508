@@ -855,7 +855,7 @@ function LyricLoungeContainer() {
           ) : albums.length === 0 ? (
             <div style={{ color: "#100e0e99" }}>No albums found.</div>
           ) : (
-            // Filter out unwanted album titles
+            // Filter out unwanted album titles only for Daft Punk; show all for other artists
             <div
               style={{
                 display: "grid",
@@ -864,16 +864,22 @@ function LyricLoungeContainer() {
               }}
             >
               {albums
-                // Exclude by album title (case-insensitive)
                 .filter(album => {
                   if (!album.strAlbum) return true;
-                  // Add all album titles to exclude to this array (lowercase for case-insensitive match)
-                  const excludedTitles = [
-                    "homework",
-                    "human after all"
-                    // add more titles as needed
-                  ];
-                  return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
+                  // Find Daft Punk artist ID for filter check:
+                  const DAFT_PUNK_ID = "112024";
+                  // Only apply the exclusion if current artist is Daft Punk
+                  if (selectedArtistId === DAFT_PUNK_ID) {
+                    // List of Daft Punk albums to exclude (case-insensitive)
+                    const excludedTitles = [
+                      "homework",
+                      "human after all"
+                      // add more titles as needed
+                    ];
+                    return !excludedTitles.includes(album.strAlbum.trim().toLowerCase());
+                  }
+                  // For other artists, show all available albums
+                  return true;
                 })
                 .map(album => {
                   const img =
