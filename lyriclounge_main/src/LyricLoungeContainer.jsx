@@ -208,6 +208,47 @@ function LyricLoungeContainer() {
     fetchAlbums();
     // eslint-disable-next-line
   }, [selectedArtistId, artist]);
+  // Album search handler (searches one specific album by title for selected artist)
+  // PUBLIC_INTERFACE
+  async function handleAlbumSearch(e) {
+    e.preventDefault();
+    setAlbumSearchResult(null);
+    setAlbumSearchError("");
+    setAlbumSearchLoading(true);
+
+    // Gather artist name: prefer loaded artist data
+    let artistName = null;
+    if (artist && artist.strArtist) {
+      artistName = artist.strArtist;
+    } else {
+      // fallback to static (should not normally happen)
+      const found = ARTISTS.find((ar) => ar.id === selectedArtistId);
+      if (found && found.name) artistName = found.name;
+    }
+    if (!artistName || !albumSearchTerm.trim()) {
+      setAlbumSearchError("Please provide both artist and album title.");
+      setAlbumSearchLoading(false);
+      return;
+    }
+
+    try {
+      const apiURL = `https://www.theaudiodb.com/api/v1/json/${THEAUDIODB_APIKEY}/searchalbum.php?s=${encodeURIComponent(artistName)}&a=${encodeURIComponent(albumSearchTerm.trim())}`;
+      const resp = await fetch(apiURL);
+      if (!resp.ok) throw new Error(`Album search failed: HTTP ${resp.status}`);
+      const data = await resp.json();
+      if (data && Array.isArray(data.album) && data.album.length > 0) {
+        setAlbumSearchResult(data.album[0]); // Only display the first found album
+        setAlbumSearchError("");
+      } else {
+        setAlbumSearchResult(null);
+        setAlbumSearchError("No album found with that title for this artist.");
+      }
+    } catch (err) {
+      setAlbumSearchResult(null);
+      setAlbumSearchError("Album search failed. [Network/API error]");
+    }
+    setAlbumSearchLoading(false);
+  }
 
   // Fetch full track details whenever the selected video/track changes
   useEffect(() => {
