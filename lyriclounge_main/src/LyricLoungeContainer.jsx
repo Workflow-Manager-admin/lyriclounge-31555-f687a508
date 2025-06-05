@@ -432,14 +432,7 @@ function LyricLoungeContainer() {
             }}
           >
             {ARTISTS.map((ar) => {
-              // Robust fallback chain for grid
-              const baseFallback = PLACEHOLDER_IMG;
-              function gridArtistFallbackUrl() {
-                if (ARTIST_STATIC_FALLBACKS[ar.id]) {
-                  return ARTIST_STATIC_FALLBACKS[ar.id];
-                }
-                return baseFallback;
-              }
+              // The dedicated fallback for ALL grid images.
               let thumb;
               if (
                 artist &&
@@ -451,11 +444,11 @@ function LyricLoungeContainer() {
               } else if (ar.img && ar.img.trim().length > 0) {
                 thumb = ar.img.trim();
               } else {
-                thumb = baseFallback;
+                thumb = FALLBACK_ARTIST_IMG;
               }
               const errorKey = ar.id;
-              const finalThumb = artistGridImgError[errorKey] ? gridArtistFallbackUrl() : thumb;
-              // Robust handler to avoid infinite loops, covers all priority logic
+              const finalThumb = artistGridImgError[errorKey] ? FALLBACK_ARTIST_IMG : thumb;
+              // Universal handler: any error, set to dedicated fallback (one retry only)
               const handleImgError = (e) => {
                 if (e.target && !artistGridImgError[errorKey]) {
                   // eslint-disable-next-line no-console
@@ -467,13 +460,8 @@ function LyricLoungeContainer() {
                     ...prev,
                     [errorKey]: true
                   }));
-                  const fallbackUrl = gridArtistFallbackUrl();
-                  if (e.target.src !== fallbackUrl) {
-                    e.target.src = fallbackUrl;
-                  } else if (fallbackUrl !== baseFallback) {
-                    // If static fallback fails, force baseFallback as absolute last resort
-                    e.target.src = baseFallback;
-                  }
+                  // Set fallback; if for some reason it's not fallback img, force set
+                  e.target.src = FALLBACK_ARTIST_IMG;
                 }
               };
 
