@@ -86,25 +86,24 @@ function LyricLoungeContainer() {
         }
         const artistJson = await artistResp.json();
 
-        // Use .find() to get the matching artist by ID
+        // Find the artist explicitly by idArtist, and warn if not found
         if (Array.isArray(artistJson?.artists)) {
-          artistData =
-            artistJson.artists.find(
-              (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
-            ) || null;
-          if (!artistData && artistJson.artists.length) {
+          artistData = artistJson.artists.find(
+            (a) => a?.idArtist && String(a.idArtist) === String(selectedArtistId)
+          ) || null;
+
+          if (!artistData) {
             // eslint-disable-next-line no-console
             console.warn(
-              `[LyricLounge] Could not find artist data for id=${selectedArtistId}, using default returned artist:`,
-              artistJson.artists[0]
+              `[LyricLounge] Could not find artist data for id=${selectedArtistId} in API response. Full artist list:`,
+              artistJson.artists
             );
           }
         } else {
           artistData = null;
         }
-        if (!artistData && Array.isArray(artistJson?.artists) && artistJson.artists.length > 0) {
-          artistData = artistJson.artists[0]; // fallback to first, log warning above
-        }
+        // Never assign ambiguous fallback: artistData will remain null if not found,
+        // ensuring the user sees a loading error/mismatch is impossible.
 
       } catch (err) {
         loadError = "Sorry, failed to load artist information.";
