@@ -275,70 +275,116 @@ function LyricLoungeContainer() {
               marginBottom: 5
             }}
           >
-            {ARTISTS.map((ar) => (
-              <button
-                key={ar.id}
-                onClick={() => setSelectedArtistId(ar.id)}
-                style={{
-                  background:
-                    selectedArtistId === ar.id
-                      ? "linear-gradient(110deg,#fff7fa,#ffc3ee 95%)"
-                      : "#fff",
-                  border:
-                    selectedArtistId === ar.id
-                      ? "2.6px solid #f0adea"
-                      : "2px solid #ded3d6",
-                  borderRadius: 16,
-                  padding: 0,
-                  cursor: "pointer",
-                  outline: "none",
-                  boxShadow:
-                    selectedArtistId === ar.id
-                      ? "0 4px 18px 0 #f0adea14"
-                      : "0 2px 10px #100e0e06",
-                  overflow: "hidden",
-                  minWidth: 140,
-                  maxWidth: 175,
-                  width: 155,
-                  marginBottom: 0,
-                  transition:
-                    "border 0.15s, box-shadow 0.18s, background 0.15s"
-                }}
-                aria-label={`Select artist ${ar.name}`}
-              >
-                <img
-                  src={ar.img}
-                  alt={ar.name}
+            {ARTISTS.map((ar) => {
+              // Determine which image to show for each artist "card" in the grid.
+              // Use live API thumb for the currently selected artist if it is available
+              // Otherwise use the static image, or fallback to generic
+              let baseFallback = "https://www.theaudiodb.com/images/media/artist/thumb/default.png";
+              let thumb;
+              if (
+                artist &&
+                ar.id === selectedArtistId &&
+                artist.strArtistThumb &&
+                artist.strArtistThumb.trim().length > 0
+              ) {
+                thumb = artist.strArtistThumb.trim();
+              } else if (ar.img && ar.img.trim().length > 0) {
+                thumb = ar.img.trim();
+              } else {
+                thumb = baseFallback;
+              }
+
+              // Track image error state (per-artist) using React's useState in a hacky closure;
+              // In a full implementation, consider using a dedicated state map.
+              const [imgError, setImgError] = useState({});
+              // Use a unique key for error tracking per artist
+              const errorKey = ar.id;
+
+              // Handler to set fallback image (avoiding infinite loop)
+              const handleImgError = (e) => {
+                if (
+                  e.target &&
+                  e.target.src !== baseFallback
+                ) {
+                  // eslint-disable-next-line no-console
+                  console.warn(
+                    `Artist grid image failed to load for '${ar.name}': `,
+                    e.target.src
+                  );
+                  setImgError((prev) => ({ ...prev, [errorKey]: true }));
+                  e.target.src = baseFallback;
+                }
+              };
+
+              // Use error override if needed
+              let finalThumb = imgError[errorKey] ? baseFallback : thumb;
+
+              return (
+                <button
+                  key={ar.id}
+                  onClick={() => setSelectedArtistId(ar.id)}
                   style={{
-                    width: "100%",
-                    height: 62,
-                    objectFit: "cover",
-                    borderTopLeftRadius: 16,
-                    borderTopRightRadius: 16,
-                    background: "#f0adea13"
+                    background:
+                      selectedArtistId === ar.id
+                        ? "linear-gradient(110deg,#fff7fa,#ffc3ee 95%)"
+                        : "#fff",
+                    border:
+                      selectedArtistId === ar.id
+                        ? "2.6px solid #f0adea"
+                        : "2px solid #ded3d6",
+                    borderRadius: 16,
+                    padding: 0,
+                    cursor: "pointer",
+                    outline: "none",
+                    boxShadow:
+                      selectedArtistId === ar.id
+                        ? "0 4px 18px 0 #f0adea14"
+                        : "0 2px 10px #100e0e06",
+                    overflow: "hidden",
+                    minWidth: 140,
+                    maxWidth: 175,
+                    width: 155,
+                    marginBottom: 0,
+                    transition:
+                      "border 0.15s, box-shadow 0.18s, background 0.15s"
                   }}
-                />
-                <div
-                  style={{
-                    padding: "9px 14px 12px 13px",
-                    textAlign: "center"
-                  }}
+                  aria-label={`Select artist ${ar.name}`}
                 >
-                  <span
+                  <img
+                    src={finalThumb}
+                    alt={ar.name}
                     style={{
-                      fontWeight: 700,
-                      color:
-                        selectedArtistId === ar.id
-                          ? "#e86ac8"
-                          : "#100e0e",
-                      fontSize: "1.04em"
+                      width: "100%",
+                      height: 62,
+                      objectFit: "cover",
+                      borderTopLeftRadius: 16,
+                      borderTopRightRadius: 16,
+                      background: "#f0adea13"
+                    }}
+                    onError={handleImgError}
+                  />
+                  <div
+                    style={{
+                      padding: "9px 14px 12px 13px",
+                      textAlign: "center"
                     }}
                   >
-                    {ar.name}
-                  </span>
-                </div>
-              </button>
-            ))}
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color:
+                          selectedArtistId === ar.id
+                            ? "#e86ac8"
+                            : "#100e0e",
+                        fontSize: "1.04em"
+                      }}
+                    >
+                      {ar.name}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
 
